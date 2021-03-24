@@ -15,6 +15,7 @@
 import Foundation
 import Alamofire
 import KakaoSDKCommon
+import UIKit
 
 public let AUTH = Auth.shared
 
