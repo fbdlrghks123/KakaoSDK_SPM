@@ -34,9 +34,30 @@ import KakaoSDKCommon
 //        }
     }
 
+/// 친구 목록 정렬 타입
+public enum FriendOrder : String, Codable {
+    
+    /// 닉네임 기준으로 정렬
+    case Nickname = "nickname"
+    
+    /// 19세 이상인 사용자 기준으로 정렬
+    case Age = "age"
+    
+    /// 즐겨찾기 기준으로 정렬
+    case Favorite = "favorite"
+    
+//    public var parameterValue: String {
+//        switch self {
+//        case .Nickname:
+//            return "nickname"
+//        case .Age:
+//            return "age"
+//        }
+//    }
+}
 
 /// 친구 목록 조회 API 응답 클래스 입니다.
-/// - seealso: `TalkApi.friends(offset:limit:order:secureResource:)`
+/// - seealso: `TalkApi.friends(offset:limit:order:)`
 public struct Friends<T:Codable> : Codable {
     
     // MARK: Fields
@@ -67,25 +88,25 @@ public struct Friends<T:Codable> : Codable {
 public struct FriendsContext {
     public let offset : Int?
     public let limit : Int?
-    public let secureResource : Bool?
     public let order : Order?
+    public let friendOrder : FriendOrder?
     
     public init(offset: Int? = nil,
                 limit: Int? = nil,
-                secureResource: Bool? = nil,
-                order: Order? = nil) {
+                order: Order? = nil,
+                friendOrder: FriendOrder? = nil) {
         self.offset = offset
         self.limit = limit
-        self.secureResource = secureResource;
         self.order = order
+        self.friendOrder = friendOrder
     }
     
     public init?(_ url:URL?) {
         if let params = url?.params() {
             if let offset = params["offset"] as? String { self.offset = Int(offset) ?? 0 } else { self.offset = nil }
             if let limit = params["limit"] as? String { self.limit = Int(limit) ?? 0 } else { self.limit = nil }
-            if let secureResource = params["secure_resource"] as? String { self.secureResource = Bool(secureResource) ?? true } else { self.secureResource = nil }
             if let order = params["order"] as? String { self.order = Order(rawValue: order) ?? .Asc } else { self.order = nil }
+            if let friendOrder = params["friend_order"] as? String { self.friendOrder = FriendOrder(rawValue: friendOrder) ?? .Favorite } else { self.friendOrder = nil }
         }
         else {
             return nil
@@ -108,7 +129,7 @@ public struct Friend : Codable {
     public let uuid: String
     
     /// 닉네임
-    public let profileNickname: String?
+    public let profileNickname: String
     
     /// 썸네일 이미지 URL
     public let profileThumbnailImage: URL?
@@ -128,7 +149,7 @@ public struct Friend : Codable {
         
         id = try values.decode(Int64.self, forKey: .id)
         uuid = try values.decode(String.self, forKey: .uuid)
-        profileNickname = try? values.decode(String.self, forKey: .profileNickname)
+        profileNickname = try values.decode(String.self, forKey: .profileNickname)
         profileThumbnailImage = URL(string:(try? values.decode(String.self, forKey: .profileThumbnailImage)) ?? "")
         favorite = try values.decode(Bool.self, forKey: .favorite)
     }

@@ -36,13 +36,13 @@ public class SdkUtils {
     }
     
 
-    static public func makeUrlStringWithParameters(_ url:String, parameters:[String:Any]) -> String? {
+    static public func makeUrlStringWithParameters(_ url:String, parameters:[String:Any]?) -> String? {
         guard var components = URLComponents(string:url) else { return nil }
-        components.queryItems = parameters.urlQueryItems
+        components.queryItems = parameters?.urlQueryItems
         return components.url?.absoluteString
     }
     
-    static public func makeUrlWithParameters(_ url:String, parameters:[String:Any]) -> URL? {
+    static public func makeUrlWithParameters(_ url:String, parameters:[String:Any]?) -> URL? {
         guard let finalStringUrl = makeUrlStringWithParameters(url, parameters:parameters) else { return nil }
         return URL(string:finalStringUrl)
     }

@@ -73,11 +73,9 @@ extension TalkApi {
     
     /// 로그인된 사용자의 카카오톡 프로필 정보를 얻을 수 있습니다.
     /// - seealso: `TalkProfile`
-    public func profile(secureResource: Bool = true,
-                        completion:@escaping (TalkProfile?, Error?) -> Void) {
+    public func profile(completion:@escaping (TalkProfile?, Error?) -> Void) {
         
         AUTH.responseData(.get, Urls.compose(path:Paths.talkProfile),
-                          parameters: ["secure_resource": secureResource].filterNil(),
                           apiType: .KApi) { (response, data, error) in
                             if let error = error {
                                 completion(nil, error)
@@ -130,12 +128,11 @@ extension TalkApi {
      public func friends(offset: Int? = nil,
                          limit: Int? = nil,
                          order: Order? = nil,
-                         secureResource: Bool? = true,
                          completion:@escaping (Friends<Friend>?, Error?) -> Void) {
          
          AUTH.responseData(.get,
                            Urls.compose(path:Paths.friends),
-                           parameters: ["offset": offset, "limit": limit, "order": order?.rawValue, "secure_resource": secureResource].filterNil(),
+                           parameters: ["offset": offset, "limit": limit, "order": order?.rawValue].filterNil(),
                            apiType: .KApi) { (response, data, error) in
                          
                              if let error = error {
@@ -160,7 +157,6 @@ extension TalkApi {
             friends(offset: context?.offset,
                     limit: context?.limit,
                     order: context?.order,
-                    secureResource: context?.secureResource,
                     completion: completion)
     }
     
@@ -236,7 +232,7 @@ extension TalkApi {
     
     /// 사용자가 특정 카카오톡 채널을 추가했는지 확인합니다.
     /// - seealso: `ChannelRelations`
-    public func channels(publicIds: Array<String>? = nil,
+    public func channels(publicIds: [String]? = nil,
                          completion:@escaping (ChannelRelations?, Error?) -> Void) {
         AUTH.responseData(.get, Urls.compose(path:Paths.channels),
                           apiType: .KApi) { (response, data, error) in

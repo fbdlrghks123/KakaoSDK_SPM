@@ -59,6 +59,9 @@ public struct User : Codable {
     
     ///'카카오싱크 간편가입창'을 통해 카카오 로그인 한 시각
     public let synchedAt : Date?
+    
+    /// 사용자가 앱에 연결되어 있는지 여부를 나타냅니다. **자동 연결** 설정이 활성화되어 있는 경우 값이 내려오지 않으므로 앱에 연결되어 있다고 가정해도 무방합니다.
+    public let hasSignedUp: Bool?
 }
 
 // MARK: Enumerations
@@ -187,6 +190,12 @@ public struct Account : Codable {
     
     /// 법정성별
     public let legalGender : Gender?
+    
+    ///한국인 여부 제공에 대한 사용자 동의 필요 여부
+    public let isKoreanNeedsAgreement : Bool?
+    
+    ///한국인 여부
+    public let isKorean : Bool?
 }
 
 /// 카카오계정에 등록된 사용자의 프로필 정보를 제공합니다.

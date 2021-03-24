@@ -176,16 +176,47 @@ public class SdkCrypto {
         cryptData.removeSubrange(resultLength..<cryptData.count)
         return cryptData
     }
-    
-    // MARK: - Helper ---------------------------------------------------------------------------------
-    
-    func dataToBytes(data:Data) -> UnsafeRawPointer {
-        data.withUnsafeBytes { (dataBytes) -> UnsafeRawPointer in
-            return UnsafeRawPointer(dataBytes)
+}
+
+///:nodoc:
+extension SdkCrypto {
+    public func generateCodeVerifier() -> String? {
+        let uuid = UUID().uuidString
+        if let codeVerifierData = self.sha512(string: uuid) {
+            return self.base64(data: codeVerifierData).replacingOccurrences(of: "=", with: "")
         }
+        return nil
     }
     
-    func sha256(data: Data) -> Data? {
+    func sha512(data: Data) -> Data? {
+        var hash = [UInt8](repeating: 0,  count: Int(CC_SHA512_DIGEST_LENGTH))
+        data.withUnsafeBytes {
+            _ = CC_SHA512($0, CC_LONG(data.count), &hash)
+        }
+        return Data(bytes: hash)
+    }
+    
+    func sha512(string: String) -> Data? {
+        guard let data = string.data(using: String.Encoding.utf8) else {
+            SdkLog.e("Invalid Seed.")
+            return nil
+        }
+        return self.sha512(data: data)
+    }
+    
+    public func base64(data: Data) -> String {
+        return data.base64EncodedString(options: [.endLineWithCarriageReturn, .endLineWithLineFeed])
+    }
+    
+    public func base64url(data: Data) -> String {
+        let base64url = self.base64(data:data)
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+        return base64url
+    }
+    
+    public func sha256(data: Data) -> Data? {
         var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
         data.withUnsafeBytes {
             _ = CC_SHA256($0, CC_LONG(data.count), &hash)
@@ -193,12 +224,23 @@ public class SdkCrypto {
         return Data(bytes: hash)
     }
     
-    func sha256(string: String) -> Data? {
+    public func sha256(string: String) -> Data? {
         guard let data = string.data(using: String.Encoding.utf8) else {
             SdkLog.e("Invalid Seed.")
             return nil
         }
         return self.sha256(data: data)
+    }
+}
+
+///:nodoc:
+extension SdkCrypto {
+    // MARK: - Helper ---------------------------------------------------------------------------------
+    
+    func dataToBytes(data:Data) -> UnsafeRawPointer {
+        data.withUnsafeBytes { (dataBytes) -> UnsafeRawPointer in
+            return UnsafeRawPointer(dataBytes)
+        }
     }
     
     func pbkdf2(algorithm :CCPBKDFAlgorithm, password: String, salt: Data, keyByteCount: Int, rounds: Int) -> Data? {

@@ -31,20 +31,25 @@ final public class KakaoSDKCommon {
     
     // MARK: Fields
     
+    //static 라이브러리용 버전.
+    private let _version = "2.4.1"
+    
     /// 카카오 SDK의 싱글톤 객체입니다. SDK를 사용할 때 반드시 이 객체가 가장 먼저 초기화되어야 합니다.
     public static let shared = KakaoSDKCommon()
     
     private var _appKey : String? = nil
-    private var _customRedirectUri : String? = nil
+    private var _customScheme : String? = nil
     private var _loggingEnable : Bool = false
     
     private var _hosts : Hosts? = nil
+    
+    private var _approvalType : ApprovalType? = nil
     
     private var _sdkType : SdkType!
     
     public init() {
         _appKey = nil
-        _customRedirectUri = nil
+        _customScheme = nil
     }
         
     // MARK: Initializers
@@ -52,20 +57,33 @@ final public class KakaoSDKCommon {
     /// SDK 초기화를 수행합니다.
     /// - parameters:
     ///   - appKey: [카카오 디벨로퍼스](https://developers.kakao.com)에서 발급 받은 NATIVE_APP_KEY
-    ///   - customRedirectUri: 로그인 시 인증코드를 발급 받을 URI. 내 앱의 커스텀 스킴에 로그인 요청임을 구분할 수 있는 host 및 path를 덧붙여 사용합니다. ex) myappscheme://oauth
     ///   - loggingEnable: SDK에서 디버그 로깅를 사용 여부
     
-    public static func initSDK(appKey: String, customRedirectUri: String? = nil, loggingEnable: Bool = false, hosts: Hosts? = nil) {
-        KakaoSDKCommon.shared.initialize(appKey: appKey, customRedirectUri: customRedirectUri, loggingEnable: loggingEnable, hosts: hosts, sdkType: .Swift)
+    public static func initSDK(appKey: String,
+                               customScheme: String? = nil,
+                               loggingEnable: Bool = false,
+                               hosts: Hosts? = nil,
+                               approvalType: ApprovalType? = nil ) {
+        KakaoSDKCommon.shared.initialize(appKey: appKey,
+                                         customScheme:customScheme,
+                                         loggingEnable: loggingEnable,
+                                         hosts: hosts,
+                                         approvalType: approvalType,
+                                         sdkType: .Swift)
     }
 
     /// :nodoc:
-    public func initialize(appKey: String, customRedirectUri: String? = nil, loggingEnable: Bool = false, hosts: Hosts? = nil, sdkType: SdkType) {
+    public func initialize(appKey: String,
+                           customScheme: String? = nil,
+                           loggingEnable: Bool = false,
+                           hosts: Hosts? = nil,
+                           approvalType: ApprovalType? = nil,
+                           sdkType: SdkType) {
         _appKey = appKey
-        _customRedirectUri = customRedirectUri
+        _customScheme = customScheme
         _loggingEnable = loggingEnable
         _hosts = hosts
-        
+        _approvalType = approvalType
         _sdkType = sdkType
         
         SdkLog.shared.clearLog()        
@@ -73,15 +91,7 @@ final public class KakaoSDKCommon {
     
     /// 현재 SDK의 버전을 조회합니다.
     public func sdkVersion() -> String {
-        let bundle = Bundle(for: type(of: self))
-        if let version = bundle.infoDictionary?["CFBundleShortVersionString"] as? String {
-            SdkLog.d("sdk_version : \(version)")
-            return version
-        }
-        else {
-            SdkLog.e("not_defined_version")
-            return "not_defined_version"
-        }
+        return _version
     }
     
     /// 초기화 시 지정한 loggingEnable
@@ -94,8 +104,19 @@ final public class KakaoSDKCommon {
         return _hosts != nil ? _hosts! : Hosts.shared
     }
     
+    public func approvalType() -> ApprovalType {
+        return _approvalType != nil ? _approvalType! : ApprovalType.shared
+    }
+    
     public func sdkType() -> SdkType {
         return _sdkType != nil ? _sdkType : .Swift
+    }
+    
+    public func scheme() throws -> String {
+        guard _appKey != nil else {
+            throw SdkError(reason: .MustInitAppKey)
+        }
+        return _customScheme ?? "kakao\(_appKey!)"
     }
 }
 
@@ -108,11 +129,14 @@ extension KakaoSDKCommon {
         }
         return _appKey!
     }
-
-    public func redirectUri() throws -> String {
-        guard _appKey != nil else {
-            throw SdkError(reason: .MustInitAppKey)
-        }
-        return _customRedirectUri ?? "kakao\(_appKey!)://oauth"
+    
+    /// KA Header를 가져옵니다.
+    public func kaHeader() -> String {
+        return Constants.kaHeader
+    }
+    
+    /// redirectUri를 가져옵니다.
+    public func redirectUri() -> String {
+        return "\(try! self.scheme())://oauth"
     }
 }

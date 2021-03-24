@@ -28,24 +28,33 @@ public class LinkApi {
         
     /// 카카오링크 API로부터 리다이렉트 된 URL 인지 체크합니다.
     public static func isKakaoLinkUrl(_ url:URL) -> Bool {
-        if url.absoluteString.hasPrefix("kakao\(try! KakaoSDKCommon.shared.appKey())://kakaolink") {
+        if url.absoluteString.hasPrefix("\(try! KakaoSDKCommon.shared.scheme())://kakaolink") {
             return true
         }
         return false
+    }
+    
+    public static func isKakaoLinkAvailable() -> Bool {
+        return UIApplication.shared.canOpenURL(URL(string:Urls.compose(.TalkLink, path:Paths.talkLink))!)
     }
 }
     
 extension LinkApi {
     // MARK: Fields
     
-    public static func isExceededLimit(linkParameters: [String: Any], validationResult: ValidationResult, extras: [String: Any]?) -> Bool {
+    public static func isExceededLimit(linkParameters: [String: Any]?, validationResult: ValidationResult, extras: [String: Any]?) -> Bool {
         var attachment = [String: Any]()
-        attachment["ak"] = linkParameters["appkey"] as? String
-        attachment["av"] = linkParameters["appver"] as? String
-        attachment["lv"] = linkParameters["linkver"] as? String
+        
+        if let linkParameters = linkParameters {
+            attachment["ak"] = linkParameters["appkey"] as? String
+            attachment["av"] = linkParameters["appver"] as? String
+            attachment["lv"] = linkParameters["linkver"] as? String
+        }
+        
         attachment["ti"] = validationResult.templateId.description
         attachment["p"]  = validationResult.templateMsg["P"]
         attachment["c"]  = validationResult.templateMsg["C"]
+        
         if validationResult.templateArgs.toJsonString() != nil, validationResult.templateArgs.count > 0 {
             attachment["ta"] = validationResult.templateArgs
         }
@@ -116,7 +125,7 @@ extension LinkApi {
                                                                 "validation_action":action,
                                                                 "validation_params":parameters?.toJsonString(),
                                                                 "ka":Constants.kaHeader,
-                                                                "lcba":serverCallbackArgs].filterNil())
+                                                                "lcba":serverCallbackArgs?.toJsonString()].filterNil())
     }
 }
 
@@ -124,7 +133,7 @@ extension LinkApi {
 extension LinkApi {
     // MARK: Fields
     
-    public func transformResponseToLinkResult(response: HTTPURLResponse?, data:Data?, serverCallbackArgs:[String:String]? = nil,
+    public func transformResponseToLinkResult(response: HTTPURLResponse?, data:Data?, targetAppKey: String? = nil, serverCallbackArgs:[String:String]? = nil,
                                               completion:@escaping (LinkResult?, Error?) -> Void) {
         
         
@@ -135,12 +144,13 @@ extension LinkApi {
                 ].filterNil()
             
             let linkParameters = ["appkey" : try! KakaoSDKCommon.shared.appKey(),
+                                  "target_app_key" : targetAppKey,
                                   "appver" : Constants.appVersion(),
                                   "linkver" : "4.0",
                                   "template_json" : validationResult.templateMsg.toJsonString(),
                                   "template_id" : validationResult.templateId,
                                   "template_args" : validationResult.templateArgs.toJsonString(),
-                                  "extras" : extraParameters.toJsonString()
+                                  "extras" : extraParameters?.toJsonString()
                 ].filterNil()
             
             if let url = SdkUtils.makeUrlWithParameters(Urls.compose(.TalkLink, path:Paths.talkLink), parameters: linkParameters) {
@@ -166,9 +176,7 @@ extension LinkApi {
         return API.responseData(.post,
                                 Urls.compose(path:Paths.defalutLink),
                                 parameters: ["link_ver":"4.0",
-                                             "template_object":templateObjectJsonString,
-                                             "target_app_key":try! KakaoSDKCommon.shared.appKey()]
-                                    .filterNil(),
+                                             "template_object":templateObjectJsonString].filterNil(),
                                 headers: ["Authorization":"KakaoAK \(try! KakaoSDKCommon.shared.appKey())"],
                                 sessionType: .Api,
                                 apiType: .KApi) { [weak self] (response, data, error) in
@@ -213,8 +221,7 @@ extension LinkApi {
                                 parameters: ["link_ver":"4.0",
                                              "request_url":requestUrl,
                                              "template_id":templateId,
-                                             "template_args":templateArgs?.toJsonString(),
-                                             "target_app_key":try! KakaoSDKCommon.shared.appKey()]
+                                             "template_args":templateArgs?.toJsonString()]
                                     .filterNil(),
                                 headers: ["Authorization":"KakaoAK \(try! KakaoSDKCommon.shared.appKey())"],
                                 sessionType: .Api,
@@ -246,8 +253,7 @@ extension LinkApi {
                                 Urls.compose(path:Paths.validateLink),
                                 parameters: ["link_ver":"4.0",
                                              "template_id":templateId,
-                                             "template_args":templateArgs?.toJsonString(),
-                                             "target_app_key":try! KakaoSDKCommon.shared.appKey()]
+                                             "template_args":templateArgs?.toJsonString()]
                                     .filterNil(),
                                 headers: ["Authorization":"KakaoAK \(try! KakaoSDKCommon.shared.appKey())"],
                                 sessionType: .Api,

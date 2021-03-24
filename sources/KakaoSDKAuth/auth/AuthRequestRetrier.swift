@@ -18,7 +18,6 @@ import KakaoSDKCommon
 
 public class AuthRequestRetrier : RequestInterceptor {
     private var requestsToRetry: [(RetryResult) -> Void] = []
-    private var agreementRequestsToRetry: [(RetryResult) -> Void] = []
     
     private var isRefreshing = false
     
@@ -32,14 +31,17 @@ public class AuthRequestRetrier : RequestInterceptor {
                 case .customValidationFailed(let error):
                     return error as? SdkError
                 default:
-                    SdkLog.d("dont care case")
+                    SdkLog.d("not customValidationFailed. - dont care case")
                 }
             default:
-                SdkLog.d("dont care case")
+                SdkLog.d("not responseValidationFailed. - dont care case")
                 
             }
         }
         return nil
+    }
+    
+    public init() {
     }
     
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
@@ -50,7 +52,7 @@ public class AuthRequestRetrier : RequestInterceptor {
         if let sdkError = getSdkError(error: error) {
             if !sdkError.isApiFailed {
                 SdkLog.e("\(logString)\n error:\(error)\n not api error -> pass through\n\n")
-                completion(.doNotRetry)
+                completion(.doNotRetryWithError(SdkError(message:"not api error -> pass through")))
                 return
             }
 
@@ -112,25 +114,25 @@ public class AuthRequestRetrier : RequestInterceptor {
                 SdkLog.e("\(logString)\n\n")
                 
                 if let requiredScopes = sdkError.getApiError().info?.requiredScopes {
-                    AuthController.shared.authorizeWithAuthenticationSession(scopes: requiredScopes) { (_, error) in
-                        if let error = error {
-                            completion(.doNotRetryWithError(error))
-                        }
-                        else {
-                            completion(.retry)
+                    DispatchQueue.main.async {
+                        AuthController.shared.authorizeWithAuthenticationSession(scopes: requiredScopes) { (_, error) in
+                            if let error = error {
+                                completion(.doNotRetryWithError(error))
+                            }
+                            else {
+                                completion(.retry)
+                            }
                         }
                     }
                 }
             default:
-                //error : not 401.
-                SdkLog.e("\(sdkError)\n not 401,403 error -> pass through \n\n")
-                completion(.doNotRetryWithError(sdkError))
+                SdkLog.e("\(logString)\n reason:\(sdkError)\n not handled error -> pass through \n\n")
+                completion(.doNotRetry)
             }
         }
         else {
-            //error : should not refresh because error info does not exist.
-            SdkLog.e("\(error)\n no error info : should not refresh -> pass through \n\n")
-            completion(.doNotRetryWithError(error))
+            SdkLog.e("\(logString)\n reason:\(error)\n not handled error -> pass through \n\n")
+            completion(.doNotRetry)
         }
     }
     

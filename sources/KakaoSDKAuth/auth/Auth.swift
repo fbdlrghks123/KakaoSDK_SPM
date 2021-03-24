@@ -37,27 +37,11 @@ public class Auth {
     }
     
     func initSession() {
-        addSession(type:.AuthApi)
-        addSession(type:.RxAuthApi)
-    }
-    
-    private func addSession(type: SessionType) {
-        var session : Session
-
-        switch type {
-        case .AuthApi:
-            
-            let adapterAndRetrier = Interceptor(adapter: AuthRequestAdapter(), retrier: AuthRequestRetrier())
-            session = Session(configuration: URLSessionConfiguration.default, interceptor: adapterAndRetrier )
-            API.addSession(type: type, session: session)
-        case .RxAuthApi:
-            session = Session(configuration: URLSessionConfiguration.default, interceptor: AuthRequestAdapter())
-            API.addSession(type: type, session: session)
-        default:
-            break
-        }
+        let interceptor = Interceptor(adapter: AuthRequestAdapter(), retrier: AuthRequestRetrier())
+        API.addSession(type: .AuthApi, session: Session(configuration: URLSessionConfiguration.default, interceptor: interceptor))
+        API.addSession(type: .RxAuthApi, session: Session(configuration: URLSessionConfiguration.default, interceptor: AuthRequestAdapter()))
         
-        print(">>>> \(API.sessions)")
+        SdkLog.d(">>>> \(API.sessions)")
     }
     
     /// ## 커스텀 토큰 관리자

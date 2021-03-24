@@ -19,6 +19,7 @@ public class Hosts {
     
     public let kapi : String
     public let dapi : String
+    public let auth : String
     public let kauth : String
     public let talkAuth : String
     public let channel : String
@@ -29,6 +30,7 @@ public class Hosts {
     
     public init(kapi: String = "kapi.kakao.com",
                 dapi: String = "dapi.kakao.com",
+                auth: String = "auth.kakao.com",
                 kauth: String = "kauth.kakao.com",
                 talkAuth: String = "kakaokompassauth",
                 channel: String = "pf.kakao.com",
@@ -39,6 +41,7 @@ public class Hosts {
     {
         self.kapi = kapi
         self.dapi = dapi
+        self.auth = auth
         self.kauth = kauth
         self.talkAuth = talkAuth
         self.channel = channel
@@ -52,6 +55,7 @@ public class Hosts {
 public enum HostType {
     case Kapi
     case Dapi
+    case Auth
     case Kauth
     case TalkAuth
     case Channel
@@ -67,6 +71,8 @@ public enum HostType {
             return "https://\(KakaoSDKCommon.shared.hosts().kapi)"
         case .Dapi:
             return "https://\(KakaoSDKCommon.shared.hosts().dapi)"
+        case .Auth:
+            return "https://\(KakaoSDKCommon.shared.hosts().auth)"
         case .Kauth:
             return "https://\(KakaoSDKCommon.shared.hosts().kauth)"
         case .TalkAuth:
@@ -88,14 +94,18 @@ public enum HostType {
 }
 
 public class Paths {
-    //auth
+    //kauth
     public static let authAuthorize = "/oauth/authorize"
     public static let authToken = "/oauth/token"
     public static let authAgt = "/api/agt"
     
     public static let authTalk = "authorize"
     
+    //kakao accounts
+    public static let kakaoAccountsLogin = "/sdks/page"
+    
     //user
+    public static let signup = "/v1/user/signup"
     public static var userMe = "/v2/user/me"
     public static let userUpdateProfile = "/v1/user/update_profile"
     public static let userAccessTokenInfo = "/v1/user/access_token_info"
@@ -155,7 +165,7 @@ public class Paths {
     public static let imageScrapLink = "/v2/api/talk/message/image/scrap"
     
     //search
-    public static let searchCafe = "/v2/search/cafe"
+    public static let searchCafe = "/v2/search/cafe"    
 }
 
 public class Urls {

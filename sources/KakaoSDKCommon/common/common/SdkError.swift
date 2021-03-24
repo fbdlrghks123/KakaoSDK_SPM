@@ -154,6 +154,18 @@ extension SdkError {
         }
         return (AuthFailureReason.Unknown, nil)
     }
+    
+    /// 유효하지 않은 토큰 에러인지 체크합니다.
+    public func isInvalidTokenError() -> Bool {
+        if case .ApiFailed = self, getApiError().reason == .InvalidAccessToken {
+            return true
+        }
+        else if case .AuthFailed = self, getAuthError().reason == .InvalidGrant {
+            return true
+        }
+        
+        return false
+    }
 }
 
 //MARK: - error code enum
@@ -235,8 +247,11 @@ public enum ApiFailureReason : Int, Codable {
     /// 해당 API에서 접근하는 리소스에 대해 사용자의 동의를 받지 않음
     case InsufficientScope = -402
     
-    /// 카카오계정에 연령인증이 필요함
-    case NotAgeAuthorized = -450
+    ///연령인증이 필요함
+    case RequiredAgeVerification = -405
+    
+    ///연령제한에 걸림
+    case UnderAgeLimit = -406
 
     /// 앱의 연령제한보다 사용자의 연령이 낮음
     case LowerAgeLimit = -451

@@ -45,6 +45,8 @@ public struct ChannelRelation : Codable {
         case Added = "ADDED"
         /// 추가하지 않음
         case None = "NONE"
+        /// 차단 상태
+        case Blocked = "BLOCKED"
     }
     
     /// 채널의 UUID

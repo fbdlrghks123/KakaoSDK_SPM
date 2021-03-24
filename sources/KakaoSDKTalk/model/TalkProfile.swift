@@ -15,7 +15,7 @@
 import Foundation
 
 /// 카카오톡 프로필 가져오기 API 응답 클래스 입니다.
-/// - seealso: `TalkApi.profile(secureResource:)`
+/// - seealso: `TalkApi.profile()`
 public struct TalkProfile : Codable {
     
     // MARK: Fields

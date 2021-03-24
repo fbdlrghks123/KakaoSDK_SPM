@@ -15,13 +15,7 @@
 import Foundation
 import UIKit
 
-public enum SdkType : String {
-    case Swift = "swift"
-    case RxSwift = "rx_swift"
-}
-
 public class Constants {
-//    static public let SafariAuthrizeResponseCallbackNotification = "SafariAuthrizeResponseCallbackNotification"
     static public let responseType = "code"
     
     static public let kaHeader : String = generateKaHeader()
@@ -33,8 +27,15 @@ public class Constants {
         
         let osVersion = UIDevice.current.systemVersion
         
-        let langCode = (Locale.preferredLanguages.count > 0) ? Locale.preferredLanguages[0] : Locale.current.languageCode
-        let countryCode = Locale.current.regionCode        
+        var langCode = Locale.current.languageCode
+        if (Locale.preferredLanguages.count > 0) {
+            if let preferredLanguage = Locale.preferredLanguages.first {                
+                if let languageCode = Locale.components(fromIdentifier:preferredLanguage)[NSLocale.Key.languageCode.rawValue] {
+                    langCode = languageCode
+                }
+            }
+        }
+        let countryCode = Locale.current.regionCode
         
         let lang = "\(langCode ?? "")-\(countryCode ?? "")"
         let resX = "\(Int(UIScreen.main.bounds.width))"
@@ -54,4 +55,26 @@ public class Constants {
         appVersion = appVersion?.replacingOccurrences(of: " ", with: "_")
         return appVersion
     }
+}
+
+///:nodoc:
+public enum SdkType : String {
+    case Swift = "swift"
+    case RxSwift = "rx_swift"
+}
+
+///:nodoc:
+public class ApprovalType {
+    public static let shared = ApprovalType()
+    public var type : String?
+    
+    public init() {
+        self.type = nil
+    }
+}
+
+///:nodoc:
+public enum ApiType {
+    case KApi
+    case KAuth
 }

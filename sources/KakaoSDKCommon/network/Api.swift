@@ -14,7 +14,6 @@
 
 import Foundation
 import Alamofire
-import UIKit
 
 public let API = Api.shared
 
@@ -23,12 +22,13 @@ public enum SessionType {
     case Api        //KA
     case AuthApi    //Token (withRetrier)
     case RxAuthApi  //Token
+    case PartnerAuthApi
 }
 
-public enum ApiType {
-    case KApi
-    case KAuth
-}
+//public enum ApiType {
+//    case KApi
+//    case KAuth
+//}
 
 public class Api {
     public static let shared = Api()
@@ -43,28 +43,22 @@ public class Api {
     }
 }
 
-extension Api {
+extension Api {    
     private func initSession() {
-        addSession(type: .Api)
-        addSession(type: .Auth)
+        addSession(type: .Api, session:Session(configuration: URLSessionConfiguration.default, interceptor: ApiRequestAdapter()))
+        addSession(type: .Auth, session:Session(configuration: URLSessionConfiguration.default, interceptor: ApiRequestAdapter()))
     }
     
     public func addSession(type:SessionType, session:Session) {
-        self.sessions[type] = session
+        if self.sessions[type] == nil {
+            self.sessions[type] = session
+        }
+        
+//        SdkLog.d("<<<<<<< sessions: \(self.sessions)   count: \(self.sessions.count)")
     }
     
     public func session(_ sessionType: SessionType) -> Session {
         return sessions[sessionType] ?? sessions[.Api]!
-    }
-    
-    private func addSession(type: SessionType = .Api) {
-        var session : Session
-        switch type {
-        default:
-            session = Session(configuration: URLSessionConfiguration.default, interceptor: ApiRequestAdapter())
-            
-        }
-        self.sessions[type] = session
     }
 }
 

@@ -39,19 +39,19 @@ public struct Social : Codable {
     // MARK: Fields
     
     /// 좋아요 수
-    public var likeCount : Int?
+    public let likeCount : Int?
     
     /// 댓글 수
-    public var commentCount : Int?
+    public let commentCount : Int?
     
     /// 공유 수
-    public var sharedCount : Int?
+    public let sharedCount : Int?
     
     /// 조회 수
-    public var viewCount : Int?
+    public let viewCount : Int?
     
     /// 구독 수
-    public var subscriberCount : Int?
+    public let subscriberCount : Int?
     
     
     // MARK: Initializers
@@ -104,16 +104,16 @@ public struct Link : Codable {
     // MARK: Fields
     
     /// PC버전 카카오톡에서 사용하는 웹 링크 URL
-    public var webUrl : URL?
+    public let webUrl : URL?
     
     /// 모바일 카카오톡에서 사용하는 웹 링크 URL
-    public var mobileWebUrl : URL?
+    public let mobileWebUrl : URL?
     
     /// Android 카카오톡에서 사용하는 앱 링크 URL에 사용될 파라미터
-    public var androidExecutionParams : String?
+    public let androidExecutionParams : String?
     
     /// iOS 카카오톡에서 사용하는 앱 링크 URL에 사용될 파라미터
-    public var iosExecutionParams : String?
+    public let iosExecutionParams : String?
     
     
     // MARK: Initializers
@@ -135,23 +135,23 @@ public struct Content : Codable {
     // MARK: Fields
     
     /// 컨텐츠 제목
-    public var title : String
+    public let title : String
     
     /// 이미지 URL
-    public var imageUrl : URL
+    public let imageUrl : URL
     
     /// 이미지 너비 (단위: 픽셀)
-    public var imageWidth : Int?
+    public let imageWidth : Int?
     
     /// 이미지 높이 (단위: 픽셀)
-    public var imageHeight : Int?
+    public let imageHeight : Int?
     
     /// 컨텐츠 상세 설명
-    public var description : String?
+    public let description : String?
     
     /// 컨텐츠 클릭 시 이동할 링크 정보
     /// - seealso: `Link`
-    public var link : Link
+    public let link : Link
     
     
     // MARK: Initializers
@@ -163,8 +163,11 @@ public struct Content : Codable {
                 description: String? = nil,
                 link: Link) {
         self.title = title
-        self.description = description
         self.imageUrl = imageUrl
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
+        self.description = description
+        
         self.link = link
     }
 }
@@ -175,16 +178,16 @@ public struct CommerceDetail : Codable {
     // MARK: Fields
     
     /// 정상 가격
-    public var regularPrice : Int
+    public let regularPrice : Int
     
     /// 할인 가격
-    public var discountPrice : Int?
+    public let discountPrice : Int?
     
     /// 할인율
-    public var discountRate : Int?
+    public let discountRate : Int?
     
     /// 정액 할인 가격 (할인율과 동시 사용불가)
-    public var fixedDiscountPrice : Int?
+    public let fixedDiscountPrice : Int?
     
     
     // MARK: Initializers
@@ -219,23 +222,23 @@ public struct FeedTemplate : Codable, Templatable {
     // MARK: Fields
     
     /// "feed" 고정 값
-    public let objectType = "feed"
+    public let objectType : String
     
     /// 메시지의 내용 입니다. 텍스트 및 이미지, 링크 정보를 포함합니다.
     /// - seealso: `Content`
     
-    public var content: Content
+    public let content: Content
     
     /// 댓글수, 좋아요수 등, 컨텐츠에 대한 소셜 정보입니다.
     /// - seealso: `Social`
-    public var social: Social?
+    public let social: Social?
     
     /// 기본 버튼 타이틀("자세히 보기")을 변경하고 싶을 때 설정. 이 값을 사용하면 클릭 시 이동할 링크는 content에 입력된 값이 사용합니다.
-    public var buttonTitle: String?
+    public let buttonTitle: String?
     
     /// 버튼 목록. 버튼 타이틀과 링크를 변경하고 싶을때, 버튼 두개를 사용하고 싶을때 사용합니다. (최대 2개)
     /// - seealso: `Button`
-    public var buttons : [Button]?
+    public let buttons : [Button]?
     
     
     // MARK: Initializers
@@ -247,6 +250,8 @@ public struct FeedTemplate : Codable, Templatable {
                  social: Social? = nil,
                  buttonTitle: String? = nil,
                  buttons: [Button]? = nil ) {
+        
+        self.objectType = "feed"
         self.content = content
         self.social = social
         self.buttonTitle = buttonTitle
@@ -285,52 +290,42 @@ public struct ListTemplate : Codable, Templatable {
     // MARK: Fields
     
     /// "list" 고정 값
-    public let objectType = "list"
+    public let objectType : String
     
     /// 리스트 상단에 노출되는 헤더 타이틀. (최대 200자)
-    public var headerTitle : String
+    public let headerTitle : String
     
-    /// 리스트 템플릿의 상단에 보이는 이미지 URL
-    public var headerImageUrl : URL?
-    
-    /// 리스트 템플릿의 상단에 보이는 이미지 가로 길이, 권장 800 (단위: 픽셀)
-    public var headerImageWidth : Int?
-    
-    /// 리스트 템플릿의 상단에 보이는 이미지 세로 길이, 권장 190 (단위: 픽셀)
-    public var headerImageHeight : Int?
+    /// :nodoc: 리스트 템플릿의 상단에 보이는 이미지 URL : headerImageUrl은 2.0.3에 삭제 되었습니다.
+    /// :nodoc: 리스트 템플릿의 상단에 보이는 이미지 가로 길이, 권장 800 (단위: 픽셀) : headerImageWidth 은 2.0.3에 삭제 되었습니다.
+    /// :nodoc: 리스트 템플릿의 상단에 보이는 이미지 세로 길이, 권장 190 (단위: 픽셀) : headerImageHeight 은 2.0.3에 삭제 되었습니다.
     
     /// 헤더 타이틀 내용에 해당하는 링크 정보.
     /// - seealso: `Link`
-    public var headerLink : Link
+    public let headerLink : Link
     
     /// 리스트에 노출되는 컨텐츠 목록. (최소 2개, 최대 3개)
     /// - seealso: `Content`
-    public var contents: [Content]
+    public let contents: [Content]
     
     /// 기본 버튼 타이틀("자세히 보기")을 변경하고 싶을 때 설정. 이 값을 사용하면 클릭 시 이동할 링크는 content에 입력된 값이 사용됩니다.
-    public var buttonTitle: String?
+    public let buttonTitle: String?
     
     /// 버튼 목록. 버튼 타이틀과 링크를 변경하고 싶을때, 버튼 두개를 사용하고 싶을때 사용.
     /// - seealso: `Button`
-    public var buttons : [Button]?
+    public let buttons : [Button]?
     
     
     // MARK: Initializers
     
     public init (headerTitle: String,
-                 headerImageUrl: URL? = nil,
-                 headerImageWidth: Int? = nil,
-                 headerImageHeight: Int? = nil,
                  headerLink: Link,
                  
                  contents: [Content],
                  
                  buttonTitle: String? = nil,
                  buttons: [Button]? = nil ) {
+        self.objectType = "list"
         self.headerTitle = headerTitle
-        self.headerImageUrl = headerImageUrl
-        self.headerImageWidth = headerImageWidth
-        self.headerImageHeight = headerImageHeight
         self.headerLink = headerLink
             
         self.contents = contents
@@ -364,28 +359,28 @@ public struct LocationTemplate : Codable, Templatable {
     // MARK: Fields
     
     /// "location" 고정 값
-    public let objectType = "location"
+    public let objectType : String
     
     /// 공유할 위치의 주소. 예) 경기 성남시 분당구 판교역로 235
-    public var address: String
+    public let address: String
     
     /// 카카오톡 내의 지도 뷰에서 사용되는 타이틀. 예) 카카오판교오피스
-    public var addressTitle: String?
+    public let addressTitle: String?
     
     /// 위치에 대해 설명하는 컨텐츠 정보
     /// - seealso: `Content`
-    public var content: Content
+    public let content: Content
     
     /// 댓글수, 좋아요수 등, 컨텐츠에 대한 소셜 정보
     /// - seealso: `Social`
-    public var social: Social?
+    public let social: Social?
     
     /// 기본 버튼 타이틀("자세히 보기")을 변경하고 싶을 때 설정. 이 값을 사용하면 클릭 시 이동할 링크는 content에 입력된 값이 사용됩니다.
-    public var buttonTitle: String?
+    public let buttonTitle: String?
     
     /// 버튼 목록. 기본 버튼의 타이틀 외에 링크도 변경하고 싶을 때 설정 합니다. (최대 1개, 오른쪽 "위치 보기" 버튼은 고정)
     /// - seealso: `Button`
-    public var buttons : [Button]?
+    public let buttons : [Button]?
     
     
     // MARK: Initializers
@@ -397,6 +392,7 @@ public struct LocationTemplate : Codable, Templatable {
                  buttonTitle: String? = nil,
                  buttons: [Button]? = nil
                  ) {
+        self.objectType = "location"
         self.address = address
         self.addressTitle = addressTitle
         self.content = content
@@ -434,22 +430,22 @@ public struct CommerceTemplate : Codable, Templatable {
     // MARK: Fields
     
     /// "commerce" 고정 값
-    public let objectType = "commerce"
+    public let objectType : String
     
     /// 메시지의 내용. 텍스트 및 이미지, 링크 정보를 포함합니다.
     /// - seealso: `Content`
-    public var content: Content
+    public let content: Content
     
     /// 컨텐츠에 대한 가격 정보.
     /// - seealso: `CommerceDetail`
-    public var commerce : CommerceDetail
+    public let commerce : CommerceDetail
     
     /// 기본 버튼 타이틀("자세히 보기")을 변경하고 싶을 때 설정. 이 값을 사용하면 클릭 시 이동할 링크는 content에 입력된 값이 사용됩니다.
-    public var buttonTitle: String?
+    public let buttonTitle: String?
     
     /// 버튼 목록. 버튼 타이틀과 링크를 변경하고 싶을때, 버튼 두개를 사용하고 싶을때 사용합니다. (최대 2개)
     /// - seealso: `Button`
-    public var buttons : [Button]?
+    public let buttons : [Button]?
     
     
     // MARK: Initializers
@@ -458,6 +454,7 @@ public struct CommerceTemplate : Codable, Templatable {
                  commerce: CommerceDetail,
                  buttonTitle: String? = nil,
                  buttons: [Button]? = nil ) {
+        self.objectType = "commerce"
         self.content = content
         self.commerce = commerce
         self.buttonTitle = buttonTitle
@@ -479,21 +476,21 @@ public struct TextTemplate : Codable, Templatable {
     // MARK: Fields
     
     /// "text" 고정 값
-    public let objectType = "text"
+    public let objectType : String
     
     /// 메시지에 들어갈 텍스트 (최대 200자)
-    public var text: String
+    public let text: String
     
     /// 컨텐츠 클릭 시 이동할 링크 정보
     /// - seealso: `Link`
-    public var link: Link
+    public let link: Link
     
     /// 기본 버튼 타이틀("자세히 보기")을 변경하고 싶을 때 설정. 이 값을 사용하면 클릭 시 이동할 링크는 content에 입력된 값이 사용됩니다.
-    public var buttonTitle: String?
+    public let buttonTitle: String?
     
     /// 버튼 목록. 버튼 타이틀과 링크를 변경하고 싶을때, 버튼 두개를 사용하고 싶을때 사용합니다. (최대 2개)
     /// - seealso: `Button`
-    public var buttons : [Button]?
+    public let buttons : [Button]?
     
     
     // MARK: Initializers
@@ -502,6 +499,7 @@ public struct TextTemplate : Codable, Templatable {
                  link: Link,
                  buttonTitle: String? = nil,
                  buttons: [Button]? = nil ) {
+        self.objectType = "text"
         self.text = text
         self.link = link
         self.buttonTitle = buttonTitle

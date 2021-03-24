@@ -38,8 +38,9 @@ extension Dictionary {
 }
 
 extension Dictionary where Key == String, Value == Any? {
-    public func filterNil() -> [String:Any] {
-        return self.filter({ $0.value != nil }).mapValues({ $0! })
+    public func filterNil() -> [String:Any]? {
+        let filteredNil = self.filter({ $0.value != nil }).mapValues({ $0! })
+        return (!filteredNil.isEmpty) ? filteredNil : nil
     }
 }
 

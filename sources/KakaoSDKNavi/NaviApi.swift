@@ -81,8 +81,11 @@ public class NaviApi {
         let url = SdkUtils.makeUrlWithParameters(url, parameters: ["param":SdkUtils.toJsonString(NaviParameters(destination: destination, option: option, viaList: viaList)),
                                                                    "appkey":try! KakaoSDKCommon.shared.appKey(),
                                                                    "apiver":"1.0",
-                                                                   "extras":["KA":Constants.kaHeader, "appPkg":Bundle.main.bundleIdentifier].filterNil().toJsonString()].filterNil())
+                                                                   "extras":["KA":Constants.kaHeader, "appPkg":Bundle.main.bundleIdentifier].filterNil()?.toJsonString()].filterNil())
         SdkLog.d(" url: \(url?.absoluteString ?? "") \n")
+        
+        
+        
         
         return url
     }

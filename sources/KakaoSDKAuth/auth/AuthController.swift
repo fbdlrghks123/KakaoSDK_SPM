@@ -19,6 +19,13 @@ import KakaoSDKCommon
 
 let authController = AuthController.shared
 
+/// 인가 코드 요청 시 추가 상호작용을 요청하고자 할 때 전달하는 파라미터입니다.
+public enum Prompt : String {
+    
+    /// 기본 웹 브라우저에 카카오계정 쿠키(cookie)가 이미 있더라도 이를 무시하고 무조건 카카오계정 로그인 화면을 보여주도록 합니다.
+    case Login = "login"
+}
+
 public class AuthController {
     
     // MARK: Fields
@@ -35,9 +42,19 @@ public class AuthController {
     public var authorizeWithTalkCompletionHandler : ((URL) -> Void)?
 
     static public func isValidRedirectUri(_ redirectUri:URL) -> Bool {
-        return redirectUri.absoluteString.hasPrefix(try! KakaoSDKCommon.shared.redirectUri())
+        return redirectUri.absoluteString.hasPrefix(KakaoSDKCommon.shared.redirectUri())
     }
     
+    //PKCE Spec
+    public var codeVerifier : String?
+    
+    public init() {
+        resetCodeVerifier()
+    }
+    
+    public func resetCodeVerifier() {
+        self.codeVerifier = nil
+    }
     
     // MARK: Login with KakaoTalk
     /// :nodoc:
@@ -48,7 +65,7 @@ public class AuthController {
         authController.authorizeWithTalkCompletionHandler = { (callbackUrl) in
             let parseResult = callbackUrl.oauthResult()
             if let code = parseResult.code {
-                AuthApi.shared.token(code: code) { (token, error) in
+                AuthApi.shared.token(code: code, codeVerifier: self.codeVerifier) { (token, error) in
                     if let error = error {
                         completion(nil, error)
                         return
@@ -69,19 +86,7 @@ public class AuthController {
             }
         }
         
-        var parameters = [String:Any]()
-        parameters["client_id"] = try! KakaoSDKCommon.shared.appKey()
-        parameters["redirect_uri"] = try! KakaoSDKCommon.shared.redirectUri()
-        parameters["response_type"] = Constants.responseType
-    
-        parameters["headers"] = ["KA": Constants.kaHeader].toJsonString()
-        
-        var extraParameters = [String: Any]()
-        extraParameters["channel_public_id"] = channelPublicIds?.joined(separator: ",")
-        extraParameters["service_terms"] = serviceTerms?.joined(separator: ",")        
-        if extraParameters.count > 0 {
-            parameters["params"] = extraParameters.toJsonString()
-        }
+        let parameters = self.makeParametersForTalk(channelPublicIds: channelPublicIds, serviceTerms: serviceTerms)
 
         guard let url = SdkUtils.makeUrlWithParameters(Urls.compose(.TalkAuth, path:Paths.authTalk), parameters: parameters) else {
             SdkLog.e("Bad Parameter.")
@@ -124,10 +129,23 @@ public class AuthController {
     }
     
     // MARK: Login with Web Cookie
+
+    ///:nodoc: 카카오 계정 페이지에서 로그인을 하기 위한 지원스펙 입니다.
+    public func authorizeWithAuthenticationSession(accountParameters: [String:String]? = nil  ,
+                                                   completion: @escaping (OAuthToken?, Error?) -> Void) {
+        return self.authorizeWithAuthenticationSession(agtToken: nil,
+                                                       scopes: nil,
+                                                       channelPublicIds:nil,
+                                                       serviceTerms:nil,
+                                                       accountParameters: accountParameters,
+                                                       completion: completion )
+    }    
     
     /// :nodoc: iOS 11 이상에서 제공되는 (SF/ASWeb)AuthenticationSession 을 이용하여 로그인 페이지를 띄우고 쿠키 기반 로그인을 수행합니다. 이미 사파리에에서 로그인하여 카카오계정의 쿠키가 있다면 이를 활용하여 ID/PW 입력 없이 간편하게 로그인할 수 있습니다.
-    public func authorizeWithAuthenticationSession(completion: @escaping (OAuthToken?, Error?) -> Void) {
-        return self.authorizeWithAuthenticationSession(agtToken: nil,
+    public func authorizeWithAuthenticationSession(prompts : [Prompt]? = nil,
+                                                   completion: @escaping (OAuthToken?, Error?) -> Void) {
+        return self.authorizeWithAuthenticationSession(prompts: prompts,
+                                                       agtToken: nil,
                                                        scopes: nil,
                                                        channelPublicIds: nil,
                                                        serviceTerms:nil,
@@ -135,10 +153,12 @@ public class AuthController {
     }
     
     /// :nodoc: 카카오싱크 전용입니다. 자세한 내용은 카카오싱크 전용 개발가이드를 참고하시기 바랍니다.
-    public func authorizeWithAuthenticationSession(channelPublicIds: [String]? = nil,
+    public func authorizeWithAuthenticationSession(prompts : [Prompt]? = nil,
+                                                   channelPublicIds: [String]? = nil,
                                                    serviceTerms: [String]? = nil,
                                                    completion: @escaping (OAuthToken?, Error?) -> Void) {
-        return self.authorizeWithAuthenticationSession(agtToken: nil,
+        return self.authorizeWithAuthenticationSession(prompts: prompts,
+                                                       agtToken: nil,
                                                        scopes: nil,
                                                        channelPublicIds: channelPublicIds,
                                                        serviceTerms:serviceTerms,
@@ -155,16 +175,25 @@ public class AuthController {
                 return
             }
             
-            strongSelf.authorizeWithAuthenticationSession(agtToken: agtToken, scopes: scopes) { (oauthToken, error) in
-                completion(oauthToken, error)
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+            else {
+                strongSelf.authorizeWithAuthenticationSession(agtToken: agtToken, scopes: scopes) { (oauthToken, error) in
+                    completion(oauthToken, error)
+                }
             }
         }
     }
     
-    func authorizeWithAuthenticationSession(agtToken: String? = nil,
+    /// :nodoc:
+    func authorizeWithAuthenticationSession(prompts: [Prompt]? = nil,
+                                            agtToken: String? = nil,
                                             scopes:[String]? = nil,
                                             channelPublicIds: [String]? = nil,
                                             serviceTerms: [String]? = nil,
+                                            accountParameters: [String:String]? = nil,
                                             completion: @escaping (OAuthToken?, Error?) -> Void) {
         
         let authenticationSessionCompletionHandler : (URL?, Error?) -> Void = {
@@ -192,11 +221,13 @@ public class AuthController {
                 }
             }
             
+            SdkLog.d("callback url: \(callbackUrl)")
+            
             let parseResult = callbackUrl.oauthResult()
             if let code = parseResult.code {
                 SdkLog.i("code:\n \(String(describing: code))\n\n" )
                 
-                AuthApi.shared.token(code: code) { (token, error) in
+                AuthApi.shared.token(code: code, codeVerifier: self.codeVerifier) { (token, error) in
                     if let error = error {
                         completion(nil, error)
                         return
@@ -211,37 +242,37 @@ public class AuthController {
             }
             else {
                 let error = parseResult.error ?? SdkError(reason: .Unknown, message: "Failed to parse redirect URI.")
-                SdkLog.e("Failed to parse redirect URI.")
+                SdkLog.e("redirect URI error: \(error)")
                 completion(nil, error)
                 return
             }
         }
         
-        var parameters = [String:Any]()
-        parameters["client_id"] = try! KakaoSDKCommon.shared.appKey()
-        parameters["redirect_uri"] = try! KakaoSDKCommon.shared.redirectUri()
-        parameters["response_type"] = Constants.responseType
-        parameters["ka"] = Constants.kaHeader
+        var parameters = self.makeParameters(prompts: prompts,
+                                             agtToken: agtToken,
+                                             scopes: scopes,
+                                             channelPublicIds: channelPublicIds,
+                                             serviceTerms: serviceTerms)
         
-        if let agt = agtToken {
-            parameters["agt"] = agt
-            
-            if let scopes = scopes {
-                parameters["scope"] = scopes.joined(separator:" ")
+        var url: URL? = nil
+        if let accountParameters = accountParameters, !accountParameters.isEmpty {
+            for (key, value) in accountParameters {
+                parameters[key] = value
             }
+            url = SdkUtils.makeUrlWithParameters(Urls.compose(.Auth, path:Paths.kakaoAccountsLogin), parameters:parameters)
+        }
+        else {
+            url = SdkUtils.makeUrlWithParameters(Urls.compose(.Kauth, path:Paths.authAuthorize), parameters:parameters)
         }
         
-        parameters["channel_public_id"] = channelPublicIds?.joined(separator: ",")
-        parameters["service_terms"] = serviceTerms?.joined(separator: ",")        
-        
-        if let url = SdkUtils.makeUrlWithParameters(Urls.compose(.Kauth, path:Paths.authAuthorize), parameters:parameters) {
+        if let url = url {
             SdkLog.d("\n===================================================================================================")
             SdkLog.d("request: \n url:\(url)\n parameters: \(parameters) \n")
             
             if #available(iOS 12.0, *) {
-                let authenticationSession = ASWebAuthenticationSession.init(url: url,
-                                                                             callbackURLScheme: try! KakaoSDKCommon.shared.redirectUri(),
-                                                                             completionHandler:authenticationSessionCompletionHandler)
+                let authenticationSession = ASWebAuthenticationSession(url: url,
+                                                                       callbackURLScheme: (try! KakaoSDKCommon.shared.scheme()),
+                                                                       completionHandler:authenticationSessionCompletionHandler)
                 if #available(iOS 13.0, *) {
                     authenticationSession.presentationContextProvider = authController.presentationContextProvider as? ASWebAuthenticationPresentationContextProviding
                     if agtToken != nil {
@@ -252,14 +283,115 @@ public class AuthController {
                 authController.authenticationSession = authenticationSession
             }
             else {
-                authController.authenticationSession = SFAuthenticationSession.init(url: url,
-                                                                          callbackURLScheme: try! KakaoSDKCommon.shared.redirectUri(),
-                                                                          completionHandler:authenticationSessionCompletionHandler)
+                authController.authenticationSession = SFAuthenticationSession(url: url,
+                                                                               callbackURLScheme: (try! KakaoSDKCommon.shared.scheme()),
+                                                                               completionHandler:authenticationSessionCompletionHandler)
                 (authController.authenticationSession as? SFAuthenticationSession)?.start()
             }
         }
     }
 }
+
+extension AuthController {
+    //Rx 공통 Helper
+    
+    /// :nodoc:
+    public func makeParametersForTalk(channelPublicIds: [String]? = nil,
+                                      serviceTerms: [String]? = nil)  -> [String:Any] {
+        self.resetCodeVerifier()
+        
+        var parameters = [String:Any]()
+        parameters["client_id"] = try! KakaoSDKCommon.shared.appKey()
+        parameters["redirect_uri"] = KakaoSDKCommon.shared.redirectUri()
+        parameters["response_type"] = Constants.responseType
+        parameters["headers"] = ["KA": Constants.kaHeader].toJsonString()
+        
+        var extraParameters = [String: Any]()
+        if let channelPublicIds = channelPublicIds?.joined(separator: ",") {
+            extraParameters["channel_public_id"] = channelPublicIds
+        }
+        if let serviceTerms = serviceTerms?.joined(separator: ",")  {
+            extraParameters["service_terms"] = serviceTerms
+        }
+        if let approvalType = KakaoSDKCommon.shared.approvalType().type {
+            extraParameters["approval_type"] = approvalType
+        }
+        
+        self.codeVerifier = SdkCrypto.shared.generateCodeVerifier()
+        
+        if let codeVerifier = self.codeVerifier {
+            SdkLog.d("code_verifier: \(codeVerifier)")
+            if let codeChallenge = SdkCrypto.shared.sha256(string:codeVerifier) {
+                extraParameters["code_challenge"] = SdkCrypto.shared.base64url(data:codeChallenge)
+                SdkLog.d("code_challenge: \(SdkCrypto.shared.base64url(data:codeChallenge))")
+                extraParameters["code_challenge_method"] = "S256"
+            }
+        }
+        
+        if !extraParameters.isEmpty {
+            parameters["params"] = extraParameters.toJsonString()
+        }
+        
+        return parameters
+    }
+    
+    
+    public func makeParameters(prompts : [Prompt]? = nil,
+                               agtToken: String? = nil,
+                               scopes:[String]? = nil,
+                               channelPublicIds: [String]? = nil,
+                               serviceTerms: [String]? = nil) -> [String:Any]
+    {
+        self.resetCodeVerifier()
+        
+        var parameters = [String:Any]()
+        parameters["client_id"] = try! KakaoSDKCommon.shared.appKey()
+        parameters["redirect_uri"] = KakaoSDKCommon.shared.redirectUri()
+        parameters["response_type"] = Constants.responseType
+        parameters["ka"] = Constants.kaHeader
+        
+        if let approvalType = KakaoSDKCommon.shared.approvalType().type {
+            parameters["approval_type"] = approvalType
+        }
+        
+        if let agt = agtToken {
+            parameters["agt"] = agt
+            
+            if let scopes = scopes {
+                parameters["scope"] = scopes.joined(separator:" ")
+            }
+        }
+        
+        if let prompts = prompts {
+            let promptsValues : [String]? = prompts.map { $0.rawValue }
+            if let prompt = promptsValues?.joined(separator: ",") {
+                parameters["prompt"] = prompt
+            }
+        }
+        
+        if let channelPublicIds = channelPublicIds?.joined(separator: ",") {
+            parameters["channel_public_id"] = channelPublicIds
+        }
+        
+        if let serviceTerms = serviceTerms?.joined(separator: ",")  {
+            parameters["service_terms"] = serviceTerms
+        }
+        
+        self.codeVerifier = SdkCrypto.shared.generateCodeVerifier()
+        if let codeVerifier = self.codeVerifier {
+            SdkLog.d("code_verifier: \(codeVerifier)")
+            if let codeChallenge = SdkCrypto.shared.sha256(string:codeVerifier) {
+                parameters["code_challenge"] = SdkCrypto.shared.base64url(data:codeChallenge)
+                SdkLog.d("code_challenge: \(SdkCrypto.shared.base64url(data:codeChallenge))")
+                parameters["code_challenge_method"] = "S256"
+            }
+        }
+        
+        return parameters
+    }
+}
+
+
 
 extension URL {
     // SDK에서 state 제공 계획은 없지만 OAuth 표준이므로 파싱해둔다.
