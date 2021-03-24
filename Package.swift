@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "KakaoOpenSDK_v2",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v10)
     ],
     products: [
         .library(name: "KakaoSDKAuth",
@@ -42,6 +42,7 @@ let package = Package(
                 path: "sources/KakaoSDKAuth"),
         
         .target(name: "KakaoSDKCommon",
+                dependencies: ["Alamofire"],
                 path: "sources/KakaoSDKCommon"),
         
         .target(name: "KakaoSDKLink",
