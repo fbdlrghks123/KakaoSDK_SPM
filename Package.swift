@@ -39,33 +39,33 @@ let package = Package(
     targets: [
         .target(name: "KakaoSDKAuth",
                 dependencies: ["KakaoSDKCommon"],
-                path: "KakaoSDKAuth"),
+                path: "sources/KakaoSDKAuth"),
         
         .target(name: "KakaoSDKCommon",
-                path: "KakaoSDKCommon"),
+                path: "sources/KakaoSDKCommon"),
         
         .target(name: "KakaoSDKLink",
                 dependencies: ["KakaoSDKCommon"],
-                path: "KakaoSDKLink"),
+                path: "sources/KakaoSDKLink"),
         
         .target(name: "KakaoSDKNavi",
                 dependencies: ["KakaoSDKCommon"],
-                path: "KakaoSDKNavi"),
+                path: "sources/KakaoSDKNavi"),
         
         .target(name: "KakaoSDKStory",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth"],
-                path: "KakaoSDKStory"),
+                path: "sources/KakaoSDKStory"),
         
         .target(name: "KakaoSDKTalk",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "KakaoSDKTemplate"],
-                path: "KakaoSDKTalk"),
+                path: "sources/KakaoSDKTalk"),
         
         .target(name: "KakaoSDKTemplate",
                 dependencies: ["KakaoSDKCommon"],
-                path: "KakaoSDKTemplate"),
+                path: "sources/KakaoSDKTemplate"),
         
         .target(name: "KakaoSDKUser",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth"],
-                path: "KakaoSDKUser")
+                path: "sources/KakaoSDKUser")
     ]
 )
