@@ -38,34 +38,35 @@ let package = Package(
     ],
     targets: [
         .target(name: "KakaoSDKAuth",
-                dependencies: ["KakaoSDKCommon"],
+                dependencies: ["KakaoSDKCommon", "Alamofire"],
                 path: "sources/KakaoSDKAuth"),
         
         .target(name: "KakaoSDKCommon",
+                dependencies: ["Alamofire"],
                 path: "sources/KakaoSDKCommon"),
         
         .target(name: "KakaoSDKLink",
-                dependencies: ["KakaoSDKCommon"],
+                dependencies: ["KakaoSDKCommon", "Alamofire"],
                 path: "sources/KakaoSDKLink"),
         
         .target(name: "KakaoSDKNavi",
-                dependencies: ["KakaoSDKCommon"],
+                dependencies: ["KakaoSDKCommon", "Alamofire"],
                 path: "sources/KakaoSDKNavi"),
         
         .target(name: "KakaoSDKStory",
-                dependencies: ["KakaoSDKCommon", "KakaoSDKAuth"],
+                dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "Alamofire"],
                 path: "sources/KakaoSDKStory"),
         
         .target(name: "KakaoSDKTalk",
-                dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "KakaoSDKTemplate"],
+                dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "KakaoSDKTemplate", "Alamofire"],
                 path: "sources/KakaoSDKTalk"),
         
         .target(name: "KakaoSDKTemplate",
-                dependencies: ["KakaoSDKCommon"],
+                dependencies: ["KakaoSDKCommon", "Alamofire"],
                 path: "sources/KakaoSDKTemplate"),
         
         .target(name: "KakaoSDKUser",
-                dependencies: ["KakaoSDKCommon", "KakaoSDKAuth"],
+                dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "Alamofire"],
                 path: "sources/KakaoSDKUser")
     ]
 )
