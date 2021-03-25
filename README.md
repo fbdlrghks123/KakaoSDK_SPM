@@ -25,3 +25,16 @@ dependencies: [
 ]
 ```
 
+
+
+
+
+## 원본 소스에서 수정한 내역
+
+#### Import UIKit 추가 리스트
+
+- KakaoSDKCommon/network/Api.swift 
+- KakaoSDKAuth/auth/Auth.swift
+- KakaoSDKUser/UserApi.swift
+- KakaoSDKLink/LinkApi.swift
+
