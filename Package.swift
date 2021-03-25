@@ -46,7 +46,7 @@ let package = Package(
                 path: "sources/KakaoSDKCommon"),
         
         .target(name: "KakaoSDKLink",
-                dependencies: ["KakaoSDKCommon", "Alamofire"],
+                dependencies: ["KakaoSDKCommon", "KakaoSDKTemplate", "Alamofire"],
                 path: "sources/KakaoSDKLink"),
         
         .target(name: "KakaoSDKNavi",
