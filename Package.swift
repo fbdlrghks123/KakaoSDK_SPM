@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "KakaoOpenSDK_v2",
+    name: "KakaoOpenSDK_V2",
     platforms: [
         .iOS(.v11)
     ],

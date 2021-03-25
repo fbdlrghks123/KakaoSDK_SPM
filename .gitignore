@@ -1,6 +1,21 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/swift,xcode,swiftpackagemanager
-# Edit at https://www.toptal.com/developers/gitignore?templates=swift,xcode,swiftpackagemanager
+# Created by https://www.toptal.com/developers/gitignore/api/swift,swiftpackagemanager,swiftpm,xcode,git
+# Edit at https://www.toptal.com/developers/gitignore?templates=swift,swiftpackagemanager,swiftpm,xcode,git
+
+### Git ###
+# Created by git for backups. To disable backups in Git:
+# $ git config --global mergetool.keepBackup false
+*.orig
+
+# Created by git when using merge tools for conflicts
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
 
 ### Swift ###
 # Xcode
@@ -92,6 +107,9 @@ xcuserdata
 *.xcodeproj
 
 
+### SwiftPM ###
+
+
 ### Xcode ###
 # Xcode
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
@@ -109,4 +127,4 @@ xcuserdata
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 
-# End of https://www.toptal.com/developers/gitignore/api/swift,xcode,swiftpackagemanager
+# End of https://www.toptal.com/developers/gitignore/api/swift,swiftpackagemanager,swiftpm,xcode,git
