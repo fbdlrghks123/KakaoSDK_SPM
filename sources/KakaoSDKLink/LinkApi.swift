@@ -14,6 +14,7 @@
 
 import UIKit
 import Foundation
+
 import Alamofire
 import KakaoSDKCommon
 import KakaoSDKTemplate
@@ -55,9 +56,11 @@ extension LinkApi {
         attachment["p"]  = validationResult.templateMsg["P"]
         attachment["c"]  = validationResult.templateMsg["C"]
         
-        if validationResult.templateArgs.toJsonString() != nil, validationResult.templateArgs.count > 0 {
-            attachment["ta"] = validationResult.templateArgs
+        if let templateArgs = validationResult.templateArgs, templateArgs.toJsonString() != nil, templateArgs.count > 0 {
+            attachment["ta"] = templateArgs
         }
+        
+        
         if let extras = extras, extras.toJsonString() != nil, extras.count > 0 {
             attachment["extras"] = extras
         }
@@ -149,7 +152,7 @@ extension LinkApi {
                                   "linkver" : "4.0",
                                   "template_json" : validationResult.templateMsg.toJsonString(),
                                   "template_id" : validationResult.templateId,
-                                  "template_args" : validationResult.templateArgs.toJsonString(),
+                                  "template_args" : validationResult.templateArgs?.toJsonString(),
                                   "extras" : extraParameters?.toJsonString()
                 ].filterNil()
             

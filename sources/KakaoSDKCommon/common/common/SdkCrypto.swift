@@ -155,8 +155,8 @@ public class SdkCrypto {
         let cryptLength = size_t(data.count + kCCBlockSizeAES128)
         var cryptData = Data(count:cryptLength)
         
-        let cryptBytes = cryptData.withUnsafeMutableBytes { (tempBytes) -> UnsafeMutableRawPointer in
-            return UnsafeMutableRawPointer(tempBytes)
+        let cryptBytes = cryptData.withUnsafeMutableBytes { (tempBytes) -> UnsafeMutableRawPointer? in
+            return UnsafeMutableRawPointer(tempBytes.bindMemory(to: UInt8.self).baseAddress)
         }
         
         let cryptStatus = CCCrypt(operation,
@@ -191,9 +191,9 @@ extension SdkCrypto {
     func sha512(data: Data) -> Data? {
         var hash = [UInt8](repeating: 0,  count: Int(CC_SHA512_DIGEST_LENGTH))
         data.withUnsafeBytes {
-            _ = CC_SHA512($0, CC_LONG(data.count), &hash)
+            _ = CC_SHA512($0.baseAddress, CC_LONG(data.count), &hash)
         }
-        return Data(bytes: hash)
+        return Data(hash)
     }
     
     func sha512(string: String) -> Data? {
@@ -219,9 +219,9 @@ extension SdkCrypto {
     public func sha256(data: Data) -> Data? {
         var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
         data.withUnsafeBytes {
-            _ = CC_SHA256($0, CC_LONG(data.count), &hash)
+            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
         }
-        return Data(bytes: hash)
+        return Data(hash)
     }
     
     public func sha256(string: String) -> Data? {
@@ -237,9 +237,9 @@ extension SdkCrypto {
 extension SdkCrypto {
     // MARK: - Helper ---------------------------------------------------------------------------------
     
-    func dataToBytes(data:Data) -> UnsafeRawPointer {
-        data.withUnsafeBytes { (dataBytes) -> UnsafeRawPointer in
-            return UnsafeRawPointer(dataBytes)
+    func dataToBytes(data:Data) -> UnsafeRawPointer? {
+        data.withUnsafeBytes { (dataBytes) -> UnsafeRawPointer? in
+            return UnsafeRawPointer(dataBytes.bindMemory(to: UInt8.self).baseAddress)
         }
     }
     
@@ -255,10 +255,10 @@ extension SdkCrypto {
                 CCKeyDerivationPBKDF(
                     CCPBKDFAlgorithm(kCCPBKDF2),
                     password, passwordData.count,
-                    saltBytes, salt.count,
+                    saltBytes.bindMemory(to: UInt8.self).baseAddress, salt.count,
                     algorithm,
                     UInt32(rounds),
-                    derivedKeyBytes, count)
+                    derivedKeyBytes.bindMemory(to: UInt8.self).baseAddress, count)
             }
         }
         if (derivationStatus != 0) {

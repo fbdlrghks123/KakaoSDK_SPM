@@ -21,11 +21,11 @@ public struct ChannelRelations : Codable {
     // MARK: Fields
     
     /// 사용자 아이디
-    public let userId: Int64
+    public let userId: Int64?
     
     /// 사용자의 채널 추가상태 목록
     /// - seealso: `ChannelRelation`
-    public let channels: [ChannelRelation]
+    public let channels: [ChannelRelation]?
     
     enum CodingKeys : String, CodingKey {
         case userId
@@ -56,7 +56,7 @@ public struct ChannelRelation : Codable {
     public let encodedId: String
     
     /// 사용자의 채널 추가 상태
-    public let relation: Relation?
+    public let relation: Relation
     
     /// 마지막 상태 변경 일시
     public let updatedAt: Date?

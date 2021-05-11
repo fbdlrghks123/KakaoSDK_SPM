@@ -26,7 +26,7 @@ public struct User : Codable {
     ///
     /// - note:
     /// 2018년 9월 19일부터 신규로 생성되는 앱에 대해 **사용자 아이디 고정**을 자동으로 활성화하고 있습니다. https://devtalk.kakao.com/t/api/58481?u=karl.lee&source_topic_id=60227
-    public let id: Int64
+    public let id: Int64?
     
     /// 앱 별로 제공되는 사용자 정보 데이터베이스입니다.
     ///
@@ -205,7 +205,7 @@ public struct Profile : Codable {
     // MARK: Fields
 
     /// 사용자의 닉네임
-    public let nickname: String
+    public let nickname: String?
     
     /// 카카오계정에 등록된 프로필 이미지 URL
     ///
@@ -217,15 +217,19 @@ public struct Profile : Codable {
     /// 사용자가 프로필 이미지를 등록하지 않은 경우 nil이 내려옵니다. 사용자가 등록한 프로필 이미지가 사진인 경우 110 * 110 규격의 이미지가, 동영상인 경우 100 * 100 규격의 스냅샷 이미지가 제공됩니다.
     public let thumbnailImageUrl: URL?
     
+    /// 사용자 프로필 기본 이미지 여부
+    public let isDefaultImage: Bool?
+    
     enum CodingKeys : String, CodingKey {
-        case nickname, profileImageUrl, thumbnailImageUrl
+        case nickname, profileImageUrl, thumbnailImageUrl, isDefaultImage
     }
     
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        nickname = try values.decode(String.self, forKey: .nickname)
+        nickname = try? values.decode(String.self, forKey: .nickname)
         profileImageUrl = URL(string: (try? values.decode(String.self, forKey: .profileImageUrl)) ?? "")
         thumbnailImageUrl = URL(string: (try? values.decode(String.self, forKey: .thumbnailImageUrl)) ?? "")
+        isDefaultImage = try? values.decode(Bool.self, forKey: .isDefaultImage)
     }
 }

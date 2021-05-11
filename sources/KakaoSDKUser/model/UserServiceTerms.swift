@@ -21,11 +21,14 @@ public struct UserServiceTerms : Codable {
     // MARK: Fields
     
     /// 사용자 아이디
-    public let userId: Int64
+    public let userId: Int64?
     
     /// 사용자가 동의한 3rd의 약관 항목들
     /// - seealso: `ServiceTerms`
     public let allowedServiceTerms: [ServiceTerms]?
+    
+    /// 앱에 사용 설정된 서비스 약관 목록들
+    public let appServiceTerms: [AppServiceTerms]?
 }
 
 /// 3rd party 서비스 약관 정보 클래스 입니다.
@@ -39,4 +42,21 @@ public struct ServiceTerms : Codable {
     
     /// 동의한 시간. 약관이 여러번 뜨는 구조라면, 마지막으로 동의한 시간.
     public let agreedAt: Date
+}
+
+
+/// 앱에 사용 설정된 서비스 약관 목록
+/// - seealso: `AppServiceTerms`
+public struct AppServiceTerms : Codable {
+    
+    // MARK: Fields
+    
+    /// 3rd에서 동의한 약관의 항목들을 정의한 값
+    public let tag: String
+    
+    /// 약관을 생성한 시간
+    public let createdAt: Date
+    
+    /// 약관을 수정한 시간
+    public let updatedAt: Date
 }

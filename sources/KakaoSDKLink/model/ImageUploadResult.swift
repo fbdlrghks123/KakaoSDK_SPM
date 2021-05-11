@@ -38,7 +38,7 @@ public struct ImageInfo : Codable {
     public let contentType: String
     
     /// 업로드 된 이미지의 용량 (단위: 바이트)
-    public let length: Int64
+    public let length: Int
     
     /// 업로드 된 이미지의 너비 (단위: 픽셀)
     public let width: Int

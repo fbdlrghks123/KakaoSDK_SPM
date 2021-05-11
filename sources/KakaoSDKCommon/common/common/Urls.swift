@@ -113,6 +113,8 @@ public class Paths {
     public static let userUnlink = "/v1/user/unlink"
     public static let userShippingAddress = "/v1/user/shipping_address"
     public static let userServiceTerms = "/v1/user/service/terms"
+    public static let userScopes = "/v2/user/scopes"
+    public static let userRevokeScopes = "/v2/user/revoke/scopes"
     
     //talk
     public static let talkProfile = "/v1/api/talk/profile"

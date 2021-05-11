@@ -24,10 +24,10 @@ public struct UserShippingAddresses : Codable {
     // MARK: Fields
     
     /// 사용자 아이디
-    public let userId: Int64
+    public let userId: Int64?
     
     /// 배송지 제공에 대한 사용자의 동의 필요 여부
-    public let needsAgreement: Bool
+    public let needsAgreement: Bool?
     
     /// 사용자가 소유한 배송지 목록
     ///
@@ -69,17 +69,17 @@ public struct ShippingAddress : Codable {
     public let isDefault: Bool
     
     /// 마지막 배송지정보 수정시각
-    public let updatedAt: Date
+    public let updatedAt: Date?
     
     /// 배송지 타입
     /// - seealso: Type
-    public let type: Type
+    public let type: Type?
     
     /// 주소 검색을 통해 자동으로 입력되는 기본 주소
-    public let baseAddress: String
+    public let baseAddress: String?
     
     /// 기본 주소에 추가하는 상세 주소
-    public let detailAddress: String
+    public let detailAddress: String?
     
     /// 수령인 이름
     public let receiverName: String?

@@ -121,7 +121,7 @@ public struct Friend : Codable {
     // MARK: Fields
     
     /// 사용자 아이디
-    public let id: Int64
+    public let id: Int64?
     
     /// 메시지를 전송하기 위한 고유 아이디
     ///
@@ -129,13 +129,13 @@ public struct Friend : Codable {
     public let uuid: String
     
     /// 닉네임
-    public let profileNickname: String
+    public let profileNickname: String?
     
     /// 썸네일 이미지 URL
     public let profileThumbnailImage: URL?
     
     /// 즐겨찾기 추가 여부
-    public let favorite: Bool
+    public let favorite: Bool?
     
     
     // MARK: Internal
@@ -147,10 +147,10 @@ public struct Friend : Codable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try values.decode(Int64.self, forKey: .id)
+        id = try? values.decode(Int64.self, forKey: .id)
         uuid = try values.decode(String.self, forKey: .uuid)
-        profileNickname = try values.decode(String.self, forKey: .profileNickname)
+        profileNickname = try? values.decode(String.self, forKey: .profileNickname)
         profileThumbnailImage = URL(string:(try? values.decode(String.self, forKey: .profileThumbnailImage)) ?? "")
-        favorite = try values.decode(Bool.self, forKey: .favorite)
+        favorite = try? values.decode(Bool.self, forKey: .favorite)
     }
 }

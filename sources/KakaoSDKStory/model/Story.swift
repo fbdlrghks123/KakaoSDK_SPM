@@ -173,13 +173,13 @@ public struct Story : Codable {
     
     /// 미디어 형식
     /// - seealso: `MediaType`
-    public let mediaType: MediaType
+    public let mediaType: MediaType?
     
     /// 작성된 시간
     public let createdAt: Date
     
     /// 포스팅 내용
-    public let content: String
+    public let content: String?
     
     /// 미디어 목록
     /// - seealso: `StoryMedia`

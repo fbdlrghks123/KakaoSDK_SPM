@@ -19,10 +19,10 @@ import KakaoSDKCommon
 public struct ValidationResult : Codable {
     
     public let templateId : Int64
-    public let templateArgs : [String:String]
+    public let templateArgs : [String:String]?
     public let templateMsg : [String:Any]
-    public let warningMsg : [String:String]
-    public let argumentMsg : [String:String]
+    public let warningMsg : [String:String]?
+    public let argumentMsg : [String:String]?
     
     //comment: 깊이가 있는 값의 키에 _가 있는 경우가 있어 이모델만 custom encoding, decoding rule를 적용하지 않는다.
     
@@ -38,11 +38,11 @@ public struct ValidationResult : Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
 
         templateId = try values.decode(Int64.self, forKey: .templateId)
-        templateArgs = try values.decode([String:String].self, forKey: .templateArgs)
+        templateArgs = try? values.decode([String:String].self, forKey: .templateArgs)
         templateMsg = try values.decode([String:Any].self, forKey: .templateMsg)
         
-        warningMsg = try values.decode([String:String].self, forKey: .warningMsg)
-        argumentMsg = try values.decode([String:String].self, forKey: .argumentMsg)
+        warningMsg = try? values.decode([String:String].self, forKey: .warningMsg)
+        argumentMsg = try? values.decode([String:String].self, forKey: .argumentMsg)
     }
     
     public func encode(to encoder: Encoder) throws {
