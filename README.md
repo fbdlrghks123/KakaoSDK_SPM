@@ -21,7 +21,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/fbdlrghks123/KakaoSDK_SPM.git", .upToNextMajor(from: "2.4.1"))
+    .package(url: "https://github.com/fbdlrghks123/KakaoSDK_SPM.git", .upToNextMajor(from: "2.5.2"))
 ]
 ```
 
