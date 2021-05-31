@@ -158,8 +158,8 @@ public struct Content : Codable {
     
     public init(title: String,
                 imageUrl: URL,
-                imageWidth: Int? = 0,
-                imageHeight: Int? = 0,
+                imageWidth: Int? = nil,
+                imageHeight: Int? = nil,
                 description: String? = nil,
                 link: Link) {
         self.title = title

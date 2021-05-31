@@ -231,11 +231,11 @@ extension TalkApi {
     // MARK: Kakaotalk Channel
     
     /// 사용자가 특정 카카오톡 채널을 추가했는지 확인합니다.
-    /// - seealso: `ChannelRelations`
+    /// - seealso: `Channels`
     public func channels(publicIds: [String]? = nil,
-                         completion:@escaping (ChannelRelations?, Error?) -> Void) {
+                         completion:@escaping (Channels?, Error?) -> Void) {
         AUTH.responseData(.get, Urls.compose(path:Paths.channels),
-                          parameters: ["plus_friend_public_ids":publicIds?.toJsonString()].filterNil(),
+                          parameters: ["channel_public_ids":publicIds?.toJsonString()].filterNil(),
                           apiType: .KApi) { (response, data, error) in
                             if let error = error {
                                 completion(nil, error)
@@ -243,7 +243,7 @@ extension TalkApi {
                             }
 
                             if let data = data {
-                                completion(try? SdkJSONDecoder.customIso8601Date.decode(ChannelRelations.self, from: data), nil)
+                                completion(try? SdkJSONDecoder.customIso8601Date.decode(Channels.self, from: data), nil)
                                 return
                             }
 

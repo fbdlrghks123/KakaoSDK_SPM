@@ -120,8 +120,8 @@ public class Paths {
     public static let talkProfile = "/v1/api/talk/profile"
     public static let customMemo = "/v2/api/talk/memo/send"
     public static let defaultMemo = "/v2/api/talk/memo/default/send"
-    public static let scrapMemo = "/v2/api/talk/memo/scrap/send"
-    public static let channels = "/v1/api/talk/plusfriends"
+    public static let scrapMemo = "/v2/api/talk/memo/scrap/send"    
+    public static let channels = "/v1/api/talk/channels"
     
     public static let friends = "/v1/api/talk/friends"
     

@@ -16,7 +16,7 @@ import Foundation
 
 /// 카카오톡 채널 추가상태 조회 API 응답 클래스입니다.
 /// - seealso: `TalkApi.channels`
-public struct ChannelRelations : Codable {
+public struct Channels : Codable {
     
     // MARK: Fields
     
@@ -24,18 +24,18 @@ public struct ChannelRelations : Codable {
     public let userId: Int64?
     
     /// 사용자의 채널 추가상태 목록
-    /// - seealso: `ChannelRelation`
-    public let channels: [ChannelRelation]?
+    /// - seealso: `Channel`
+    public let channels: [Channel]?
     
     enum CodingKeys : String, CodingKey {
         case userId
-        case channels = "plusFriends"
+        case channels = "channels"
     }
 }
 
 
 /// 카카오톡 채널 추가상태 정보를 제공합니다.
-public struct ChannelRelation : Codable {
+public struct Channel : Codable {
     
     // MARK: Enumerations
     
@@ -62,8 +62,8 @@ public struct ChannelRelation : Codable {
     public let updatedAt: Date?
     
     enum CodingKeys : String, CodingKey {
-        case uuid = "plusFriendUuid"
-        case encodedId = "plusFriendPublicId"
+        case uuid = "channelUuid"
+        case encodedId = "channelPublicId"
         case relation = "relation"
         case updatedAt = "updatedTime"
     }
