@@ -48,16 +48,14 @@ let package = Package(
         .library(name: .authRx),
         .library(name: .commonRx),
         .library(name: .linkRx),
-        .library(name: .naviRx),
         .library(name: .storyRx),
         .library(name: .talkRx),
-        .library(name: .templetRx),
-        .library(name: .userRx),
+        .library(name: .userRx)
     ],
     dependencies: [
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0")),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/RxSwiftCommunity/RxAlamofire.git", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0"))
+        .package(url: "https://github.com/RxSwiftCommunity/RxAlamofire.git", .upToNextMajor(from: "5.7.0"))
     ],
     targets: [
         .target(name: "KakaoSDKAuth",
@@ -99,7 +97,7 @@ let package = Package(
                 path: "sources/RxKakaoSDKAuth"),
         
         .target(name: "RxKakaoSDKCommon",
-                dependencies: ["RxAlamofire", "RxSwift", "RxCocoa"],
+                dependencies: ["RxAlamofire", "RxSwift", .product(name: "RxCocoa", package: "RxSwift")],
                 path: "sources/RxKakaoSDKCommon"),
         
         .target(name: "RxKakaoSDKLink",
