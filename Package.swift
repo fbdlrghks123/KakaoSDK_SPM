@@ -3,38 +3,61 @@
 
 import PackageDescription
 
+enum KakaoTarget: String {
+    case auth = "KakaoSDKAuth"
+    case common = "KakaoSDKCommon"
+    case link = "KakaoSDKLink"
+    case navi = "KakaoSDKNavi"
+    case story = "KakaoSDKStory"
+    case talk = "KakaoSDKTalk"
+    case templet = "KakaoSDKTemplate"
+    case user = "KakaoSDKUser"
+    
+    case authRx = "RxKakaoSDKAuth"
+    case commonRx = "RxKakaoSDKCommon"
+    case linkRx = "RxKakaoSDKLink"
+    case naviRx = "RxKakaoSDKNavi"
+    case storyRx = "RxKakaoSDKStory"
+    case talkRx = "RxKakaoSDKTalk"
+    case templetRx = "RxKakaoSDKTemplate"
+    case userRx = "RxKakaoSDKUser"
+}
+
+extension Product {
+    static func library(name: KakaoTarget) -> PackageDescription.Product {
+        return .library(name: name.rawValue, targets: [name.rawValue])
+    }
+}
+
+
 let package = Package(
     name: "KakaoOpenSDK_V2",
     platforms: [
         .iOS(.v11)
     ],
     products: [
-        .library(name: "KakaoSDKAuth",
-                 targets: ["KakaoSDKAuth"]),
+        .library(name: .auth),
+        .library(name: .common),
+        .library(name: .link),
+        .library(name: .navi),
+        .library(name: .story),
+        .library(name: .talk),
+        .library(name: .templet),
+        .library(name: .user),
         
-        .library(name: "KakaoSDKCommon",
-                 targets: ["KakaoSDKCommon"]),
-        
-        .library(name: "KakaoSDKLink",
-                 targets: ["KakaoSDKLink"]),
-        
-        .library(name: "KakaoSDKNavi",
-                 targets: ["KakaoSDKNavi"]),
-        
-        .library(name: "KakaoSDKStory",
-                 targets: ["KakaoSDKStory"]),
-        
-        .library(name: "KakaoSDKTalk",
-                 targets: ["KakaoSDKTalk"]),
-        
-        .library(name: "KakaoSDKTemplate",
-                 targets: ["KakaoSDKTemplate"]),
-        
-        .library(name: "KakaoSDKUser",
-                 targets: ["KakaoSDKUser"])
+        .library(name: .authRx),
+        .library(name: .commonRx),
+        .library(name: .linkRx),
+        .library(name: .naviRx),
+        .library(name: .storyRx),
+        .library(name: .talkRx),
+        .library(name: .templetRx),
+        .library(name: .userRx),
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.0.0")),
+        .package(url: "https://github.com/RxSwiftCommunity/RxAlamofire.git", .upToNextMajor(from: "5.0.0")),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0"))
     ],
     targets: [
         .target(name: "KakaoSDKAuth",
@@ -67,6 +90,32 @@ let package = Package(
         
         .target(name: "KakaoSDKUser",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "Alamofire"],
-                path: "sources/KakaoSDKUser")
+                path: "sources/KakaoSDKUser"),
+        
+        
+        // MARK: RX
+        .target(name: "RxKakaoSDKAuth",
+                dependencies: ["KakaoSDKAuth", "RxKakaoSDKCommon"],
+                path: "sources/RxKakaoSDKAuth"),
+        
+        .target(name: "RxKakaoSDKCommon",
+                dependencies: ["RxAlamofire", "RxSwift", "RxCocoa"],
+                path: "sources/RxKakaoSDKCommon"),
+        
+        .target(name: "RxKakaoSDKLink",
+                dependencies: ["KakaoSDKLink", "RxKakaoSDKCommon"],
+                path: "sources/RxKakaoSDKLink"),
+        
+        .target(name: "RxKakaoSDKStory",
+                dependencies: ["KakaoSDKStory", "RxKakaoSDKUser"],
+                path: "sources/RxKakaoSDKStory"),
+        
+        .target(name: "RxKakaoSDKTalk",
+                dependencies: ["KakaoSDKTalk", "KakaoSDKTemplate", "RxKakaoSDKUser"],
+                path: "sources/RxKakaoSDKTalk"),
+        
+        .target(name: "RxKakaoSDKUser",
+                dependencies: ["KakaoSDKUser", "RxKakaoSDKAuth"],
+                path: "sources/RxKakaoSDKUser"),
     ]
 )
