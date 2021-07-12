@@ -109,9 +109,15 @@ extension Api {
                     completion(response, data, nil)
                     return
                 }
+                else if let error = response.error {
+                    SdkLog.e("response:\n error: \(error)")
+                    completion(nil, nil, error)
+                    return
+                }
                 else {
                     //data or response 가 문제
-                    completion(nil, nil, SdkError())
+                    SdkLog.e("response:\n error: response or data is nil.")
+                    completion(nil, nil, SdkError(reason: .Unknown, message: "response or data is nil."))
                     return
                 }
             }
@@ -176,12 +182,21 @@ extension Api {
                 }
             }
             .responseData { (response) in
-                guard let resultResponse = response.response, let resultData = response.data else {
-                    SdkLog.e("response:\n error: upload response or data is nil.")
+                if let data = response.data, let response = response.response {
+                    completion(response, data, nil)
+                    return
+                }
+                else if let error = response.error {
+                    SdkLog.e("response:\n error: \(error)")
+                    completion(nil, nil, error)
+                    return
+                }
+                else {
+                    //data or response 가 문제
+                    SdkLog.e("response:\n error: response or data is nil.")
                     completion(nil, nil, SdkError(reason: .Unknown, message: "response or data is nil."))
                     return
                 }
-                completion(resultResponse, resultData, nil)
             }
     }
 }
