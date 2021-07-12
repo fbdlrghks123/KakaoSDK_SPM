@@ -1,6 +1,6 @@
 # KakaoSDK_SPM
 
-###### ![Swift](https://img.shields.io/badge/Version-2.5.3-bright%20green)![Swift](https://img.shields.io/badge/platform-iOS-orange)
+###### ![Swift](https://img.shields.io/badge/Version-2.5.4-bright%20green)![Swift](https://img.shields.io/badge/platform-iOS-orange)
 
 ##### KakaoSDK V2를 Swift Package Manager에서 사용하기 위한 목적으로 만든 Repository입니다.
 
@@ -21,7 +21,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/fbdlrghks123/KakaoSDK_SPM.git", .upToNextMajor(from: "2.5.3"))
+    .package(url: "https://github.com/fbdlrghks123/KakaoSDK_SPM.git", .upToNextMajor(from: "2.5.4"))
 ]
 ```
 
