@@ -130,6 +130,9 @@ public class AuthRequestRetrier : RequestInterceptor {
                     SdkLog.e("\(logString)\n reason:\(sdkError)\n requiredScopes not exist -> pass through \n\n")
                     completion(.doNotRetryWithError(SdkError(apiFailedMessage:"requiredScopes not exist")))
                 }
+            case .RequiredAgeVerification:
+                SdkLog.e("\(logString)\n reason:\(sdkError)\n not handled error -> pass through partnerAuthRetrier \n\n")
+                completion(.doNotRetry)
             default:
                 SdkLog.e("\(logString)\n reason:\(sdkError)\n not handled error -> pass through \n\n")
                 completion(.doNotRetryWithError(sdkError))
