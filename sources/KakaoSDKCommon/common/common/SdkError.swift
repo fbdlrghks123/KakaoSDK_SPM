@@ -25,9 +25,6 @@ public enum SdkError : Error {
     
     /// 로그인 에러
     case AuthFailed(reason:AuthFailureReason, errorInfo:AuthErrorInfo?)
-    
-    /// 네트워크 실패 등 일반적인 외부 에러
-    case GeneralFailed(error:Error)
 }
 
 /// :nodoc:
@@ -45,7 +42,7 @@ extension SdkError {
         case .BadParameter:
             self = .ClientFailed(reason: reason, errorMessage:message ?? "bad parameters.")
         case .TokenNotFound:
-            self = .ClientFailed(reason: reason, errorMessage: message ?? "authentication tokens don't exist.")
+            self = .ClientFailed(reason: reason, errorMessage: message ?? "authentication tokens not exist.")
         case .CastingFailed:
             self = .ClientFailed(reason: reason, errorMessage: message ?? "casting failed.")
         case .Unknown:
@@ -89,12 +86,9 @@ extension SdkError {
         let errorInfo = ErrorInfo(code: .InsufficientScope, msg: "", requiredScopes: scopes)
         self = .ApiFailed(reason: errorInfo.code, errorInfo: errorInfo)
     }
-}
-
-/// :nodoc:
-extension SdkError {
-    public init(error:Error) {
-        self = .GeneralFailed(error:error)
+    
+    public init(apiFailedMessage:String? = nil) {
+        self = .ApiFailed(reason: .Unknown, errorInfo: ErrorInfo(code: .Unknown, msg:apiFailedMessage ?? "Unknown Error", requiredScopes: nil))
     }
 }
 

@@ -31,9 +31,9 @@ public struct ErrorInfo : Codable {
     /// :nodoc: API 타입
     public let apiType: String?
     
-        public let allowedScopes: [String]?
-    
-        public init(code: ApiFailureReason, msg:String, requiredScopes:[String]?) {
+    public let allowedScopes: [String]?
+
+    public init(code: ApiFailureReason, msg:String, requiredScopes:[String]?) {
         self.code = code
         self.msg = msg
         self.requiredScopes = requiredScopes

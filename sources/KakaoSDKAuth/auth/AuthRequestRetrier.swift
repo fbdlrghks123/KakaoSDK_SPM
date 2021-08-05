@@ -105,9 +105,10 @@ public class AuthRequestRetrier : RequestInterceptor {
                         }
                     }
                 }
-                else {
-                    SdkLog.e(" should not refresh -> pass through \n")
-                    completion(.doNotRetryWithError(SdkError(message:"should not refresh -> pass through ")))
+                else {                    
+                    let sdkError = SdkError(reason: .TokenNotFound)
+                    SdkLog.e(" should not refresh: \(sdkError)  -> pass through \n")
+                    completion(.doNotRetryWithError(sdkError))
                 }
             case .InsufficientScope:
                 logString = "\(logString)\n reason:\(error)\n token: \(String(describing: AUTH.tokenManager.getToken()))"
@@ -125,13 +126,17 @@ public class AuthRequestRetrier : RequestInterceptor {
                         }
                     }
                 }
+                else {
+                    SdkLog.e("\(logString)\n reason:\(sdkError)\n requiredScopes not exist -> pass through \n\n")
+                    completion(.doNotRetryWithError(SdkError(apiFailedMessage:"requiredScopes not exist")))
+                }
             default:
                 SdkLog.e("\(logString)\n reason:\(sdkError)\n not handled error -> pass through \n\n")
-                completion(.doNotRetry)
+                completion(.doNotRetryWithError(sdkError))
             }
         }
         else {
-            SdkLog.e("\(logString)\n reason:\(error)\n not handled error -> pass through \n\n")
+            SdkLog.e("\(logString)\n not handled error -> pass through \n\n")
             completion(.doNotRetry)
         }
     }
