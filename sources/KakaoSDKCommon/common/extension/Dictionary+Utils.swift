@@ -55,3 +55,11 @@ extension Dictionary where Key == String, Value: Any {
     }
 }
 
+public extension Dictionary {
+    mutating func merge(_ dictionary: [Key: Value]) {
+        for (key, value) in dictionary {
+            self[key] = value
+        }
+    }
+}
+

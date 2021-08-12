@@ -17,7 +17,7 @@ import SafariServices
 import AuthenticationServices
 import KakaoSDKCommon
 
-let authController = AuthController.shared
+let AUTH_CONTROLLER = AuthController.shared
 
 /// 인가 코드 요청 시 추가 상호작용을 요청하고자 할 때 전달하는 파라미터입니다.
 public enum Prompt : String {
@@ -48,6 +48,10 @@ public class AuthController {
     //PKCE Spec
     public var codeVerifier : String?
     
+    //내부 디폴트브라우져용 time delay
+    /// :nodoc:
+    public static let delayForAuthenticationSession : Double = 0.4
+    
     public init() {
         resetCodeVerifier()
     }
@@ -62,7 +66,7 @@ public class AuthController {
                                   serviceTerms: [String]? = nil,
                                   completion: @escaping (OAuthToken?, Error?) -> Void) {
         
-        authController.authorizeWithTalkCompletionHandler = { (callbackUrl) in
+        AUTH_CONTROLLER.authorizeWithTalkCompletionHandler = { (callbackUrl) in
             let parseResult = callbackUrl.oauthResult()
             if let code = parseResult.code {
                 AuthApi.shared.token(code: code, codeVerifier: self.codeVerifier) { (token, error) in
@@ -121,7 +125,7 @@ public class AuthController {
     /// ```
     public static func handleOpenUrl(url:URL,  options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         if (AuthController.isValidRedirectUri(url)) {
-            if let authorizeWithTalkCompletionHandler = authController.authorizeWithTalkCompletionHandler {
+            if let authorizeWithTalkCompletionHandler = AUTH_CONTROLLER.authorizeWithTalkCompletionHandler {
                 authorizeWithTalkCompletionHandler(url)
             }
         }
@@ -181,7 +185,24 @@ public class AuthController {
             }
             else {
                 strongSelf.authorizeWithAuthenticationSession(agtToken: agtToken, scopes: scopes) { (oauthToken, error) in
-                    completion(oauthToken, error)
+                    if let topVC = UIApplication.getMostTopViewController() {
+                        let topVCName = "\(type(of: topVC))"
+                        SdkLog.d("top vc: \(topVCName)")
+                        
+                        if topVCName == "SFAuthenticationViewController" {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + AuthController.delayForAuthenticationSession) {
+                                if let topVC1 = UIApplication.getMostTopViewController() {
+                                    let topVCName1 = "\(type(of: topVC1))"
+                                    SdkLog.d("top vc: \(topVCName1)")
+                                }
+                                completion(oauthToken, error)
+                            }
+                        }
+                        else {
+                            SdkLog.d("top vc: \(topVCName)")
+                            completion(oauthToken, error)
+                        }
+                    }
                 }
             }
         }
@@ -197,7 +218,7 @@ public class AuthController {
                                             completion: @escaping (OAuthToken?, Error?) -> Void) {
         
         let authenticationSessionCompletionHandler : (URL?, Error?) -> Void = {
-            (callbackUrl:URL?, error:Error?) in
+            [weak self] (callbackUrl:URL?, error:Error?) in
             
             guard let callbackUrl = callbackUrl else {
                 if #available(iOS 12.0, *), let error = error as? ASWebAuthenticationSessionError {
@@ -227,7 +248,7 @@ public class AuthController {
             if let code = parseResult.code {
                 SdkLog.i("code:\n \(String(describing: code))\n\n" )
                 
-                AuthApi.shared.token(code: code, codeVerifier: self.codeVerifier) { (token, error) in
+                AuthApi.shared.token(code: code, codeVerifier: self?.codeVerifier) { (token, error) in
                     if let error = error {
                         completion(nil, error)
                         return
@@ -274,19 +295,20 @@ public class AuthController {
                                                                        callbackURLScheme: (try! KakaoSDKCommon.shared.scheme()),
                                                                        completionHandler:authenticationSessionCompletionHandler)
                 if #available(iOS 13.0, *) {
-                    authenticationSession.presentationContextProvider = authController.presentationContextProvider as? ASWebAuthenticationPresentationContextProviding
+                    authenticationSession.presentationContextProvider = AUTH_CONTROLLER.presentationContextProvider as? ASWebAuthenticationPresentationContextProviding
                     if agtToken != nil {
                         authenticationSession.prefersEphemeralWebBrowserSession = true
                     }
                 }
-                authenticationSession.start()
-                authController.authenticationSession = authenticationSession
+                AUTH_CONTROLLER.authenticationSession = authenticationSession
+                (AUTH_CONTROLLER.authenticationSession as? ASWebAuthenticationSession)?.start()
+                
             }
             else {
-                authController.authenticationSession = SFAuthenticationSession(url: url,
+                AUTH_CONTROLLER.authenticationSession = SFAuthenticationSession(url: url,
                                                                                callbackURLScheme: (try! KakaoSDKCommon.shared.scheme()),
                                                                                completionHandler:authenticationSessionCompletionHandler)
-                (authController.authenticationSession as? SFAuthenticationSession)?.start()
+                (AUTH_CONTROLLER.authenticationSession as? SFAuthenticationSession)?.start()
             }
         }
     }
@@ -424,6 +446,6 @@ extension URL {
 @available(iOS 13.0, *)
 class DefaultPresentationContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return UIApplication.shared.keyWindow!
+        return UIApplication.shared.keyWindow ?? ASPresentationAnchor()
     }
 }

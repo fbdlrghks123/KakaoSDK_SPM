@@ -189,17 +189,31 @@ public struct CommerceDetail : Codable {
     /// 정액 할인 가격 (할인율과 동시 사용불가)
     public let fixedDiscountPrice : Int?
     
+    /// 상품명
+    public let productName : String?
     
+    /// 가격 단위
+    public let currencyUnit : String?
+    
+    /// 가격 단위 위치 (0: 가격뒤에 단위 표시, 1 : 가격앞에 단위 표시)
+    public let currencyUnitPosition : Int?
+
     // MARK: Initializers
     
     public init (regularPrice : Int,
                  discountPrice : Int? = nil,
                  discountRate : Int? = nil,
-                 fixedDiscountPrice : Int? = nil) {
+                 fixedDiscountPrice : Int? = nil,
+                 productName : String? = nil,
+                 currencyUnit : String? = nil,
+                 currencyUnitPosition : Int? = nil) {
         self.regularPrice = regularPrice
         self.discountPrice = discountPrice
         self.discountRate = discountRate
         self.fixedDiscountPrice = fixedDiscountPrice
+        self.productName = productName
+        self.currencyUnit = currencyUnit
+        self.currencyUnitPosition = currencyUnitPosition
     }
 }
 

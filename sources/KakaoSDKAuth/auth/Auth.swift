@@ -55,9 +55,10 @@ public class Auth {
                              parameters: [String: Any]? = nil,
                              headers: [String: String]? = nil,
                              apiType: ApiType,
+                             logging: Bool = true,
                              completion: @escaping (HTTPURLResponse?, Data?, Error?) -> Void) {
         
-        API.responseData(HTTPMethod, url, parameters: parameters, headers: headers, sessionType: .AuthApi, apiType: apiType, completion: completion)
+        API.responseData(HTTPMethod, url, parameters: parameters, headers: headers, sessionType: .AuthApi, apiType: apiType, logging: logging, completion: completion)
     }
     
     public func upload(_ HTTPMethod: Alamofire.HTTPMethod,

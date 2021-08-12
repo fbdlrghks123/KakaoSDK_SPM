@@ -25,3 +25,13 @@ extension Array where Element == String {
     }
 }
 
+extension Array where Element == Int64 {
+    public func toJsonString() -> String? {
+        if let data = try? JSONSerialization.data(withJSONObject: self, options:[]) {
+            return String(data:data, encoding: .utf8)
+        }
+        else {
+            return nil
+        }
+    }
+}

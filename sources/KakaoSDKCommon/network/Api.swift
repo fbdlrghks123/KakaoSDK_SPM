@@ -82,6 +82,7 @@ extension Api {
                       headers: [String: String]? = nil,
                       sessionType: SessionType = .AuthApi,
                       apiType: ApiType,
+                      logging: Bool = true,
                       completion: @escaping (HTTPURLResponse?, Data?, Error?) -> Void) {
         
         API.session(sessionType)
@@ -99,7 +100,7 @@ extension Api {
                     SdkLog.d("===================================================================================================")
                     SdkLog.d("session: \n type: \(sessionType)\n\n")
                     SdkLog.i("request: \n method: \(HTTPMethod)\n url:\(url)\n headers:\(String(describing: headers))\n parameters: \(String(describing: parameters)) \n\n")
-                    SdkLog.i("response:\n \(String(describing: json))\n\n" )
+                    (logging) ? SdkLog.i("response:\n \(String(describing: json))\n\n" ) : SdkLog.i("response: - \n\n")
                     
                     if let sdkError = SdkError(response: response, data: data, type: apiType) {
                         return .failure(sdkError)
