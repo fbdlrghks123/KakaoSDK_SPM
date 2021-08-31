@@ -39,34 +39,42 @@ let package = Package(
     targets: [
         .target(name: "KakaoSDKAuth",
                 dependencies: ["KakaoSDKCommon", "Alamofire"],
-                path: "sources/KakaoSDKAuth"),
+                path: "sources/KakaoSDKAuth",
+                exclude: ["Info.plist"]),
         
         .target(name: "KakaoSDKCommon",
                 dependencies: ["Alamofire"],
-                path: "sources/KakaoSDKCommon"),
+                path: "sources/KakaoSDKCommon",
+                exclude: ["Info.plist"]),
         
         .target(name: "KakaoSDKLink",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKTemplate", "Alamofire"],
-                path: "sources/KakaoSDKLink"),
+                path: "sources/KakaoSDKLink",
+                exclude: ["Info.plist"]),
         
         .target(name: "KakaoSDKNavi",
                 dependencies: ["KakaoSDKCommon", "Alamofire"],
-                path: "sources/KakaoSDKNavi"),
+                path: "sources/KakaoSDKNavi",
+                exclude: ["Info.plist", "README.md"]),
         
         .target(name: "KakaoSDKStory",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "Alamofire"],
-                path: "sources/KakaoSDKStory"),
+                path: "sources/KakaoSDKStory",
+                exclude: ["Info.plist"]),
         
         .target(name: "KakaoSDKTalk",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "KakaoSDKTemplate", "Alamofire"],
-                path: "sources/KakaoSDKTalk"),
+                path: "sources/KakaoSDKTalk",
+                exclude: ["Info.plist"]),
         
         .target(name: "KakaoSDKTemplate",
                 dependencies: ["KakaoSDKCommon", "Alamofire"],
-                path: "sources/KakaoSDKTemplate"),
+                path: "sources/KakaoSDKTemplate",
+                exclude: ["Info.plist", "README.md"]),
         
         .target(name: "KakaoSDKUser",
                 dependencies: ["KakaoSDKCommon", "KakaoSDKAuth", "Alamofire"],
-                path: "sources/KakaoSDKUser")
+                path: "sources/KakaoSDKUser",
+                exclude: ["Info.plist"])
     ]
 )
