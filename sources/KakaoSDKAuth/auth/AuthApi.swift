@@ -160,5 +160,5 @@ final public class AuthApi {
                                     
                                     completion(nil, SdkError())
                                 }
-    }   
+    }
 }

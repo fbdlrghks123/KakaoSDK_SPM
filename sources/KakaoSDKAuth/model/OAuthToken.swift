@@ -148,6 +148,7 @@ public struct OAuthToken: Codable {
 //    }
 }
 
+/// :nodoc:
 public struct Token: Codable {
     public let accessToken: String
     public let expiresIn: TimeInterval
@@ -174,3 +175,54 @@ public struct Token: Codable {
     }
 }
 
+
+/// :nodoc: internal use only
+public struct CertOAuthToken: Codable {
+    public let tokenType: String
+    public let accessToken: String
+    public let expiresIn: TimeInterval
+    public let expiredAt: Date
+    public let refreshToken: String
+    public let refreshTokenExpiresIn: TimeInterval
+    public let refreshTokenExpiredAt: Date
+    public let scope: String? //space delimited string
+    public let scopes: [String]?
+    public let txId: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case accessToken, expiresIn, tokenType, refreshToken, refreshTokenExpiresIn, scope, txId
+    }
+    
+    
+    // MARK: Initializers
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.accessToken = try values.decode(String.self, forKey: .accessToken)
+        self.expiresIn = try values.decode(TimeInterval.self, forKey: .expiresIn)
+        self.expiredAt = Date().addingTimeInterval(self.expiresIn)
+        self.tokenType = try values.decode(String.self, forKey: .tokenType)
+        self.refreshToken = try values.decode(String.self, forKey: .refreshToken)
+        self.refreshTokenExpiresIn = try values.decode(TimeInterval.self, forKey: .refreshTokenExpiresIn)
+        self.refreshTokenExpiredAt = Date().addingTimeInterval(self.refreshTokenExpiresIn)
+        self.scope = try? values.decode(String.self, forKey: .scope)
+        self.scopes = scope?.components(separatedBy:" ")
+        self.txId = try? values.decode(String.self, forKey: .txId)
+    }
+}
+
+// 카카오톡 인증 로그인을 통해 발급 받은 토큰 및 전자서명 접수번호 입니다.
+public struct CertTokenInfo: Codable {
+    ///토큰 정보
+    public let token: OAuthToken
+    
+    ///전자서명 접수번호
+    public let txId: String
+    
+    public init(token:OAuthToken,
+                txId:String) {
+        self.token = token
+        self.txId = txId
+    }
+}
