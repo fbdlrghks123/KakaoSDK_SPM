@@ -64,8 +64,25 @@ extension Api {
 }
 
 extension Api {
-    public func getRequestRetryFailedError(error:AFError?) -> SdkError? {
-        if let aferror = error {
+    public func getSdkError(error: Error) -> SdkError? {
+        if let aferror = error as? AFError {
+            switch aferror {
+            case .responseValidationFailed(let reason):
+                switch reason {
+                case .customValidationFailed(let error):
+                    return error as? SdkError
+                default:
+                    break
+                }
+            default:
+                break
+            }
+        }
+        return nil
+    }
+    
+    public func getRequestRetryFailedError(error:Error) -> SdkError? {
+        if let aferror = error as? AFError {
             switch aferror {
             case .requestRetryFailed(let retryError, _):
                 return retryError as? SdkError
@@ -114,17 +131,14 @@ extension Api {
                 }
             })
             .responseData { [unowned self] response in
-                if let afError = response.error {
-                    if let retryError = self.getRequestRetryFailedError(error:afError) {
-                        SdkLog.e("response:\n api error: \(retryError)")
-                        completion(nil, nil, retryError)
-                    }
-                    else {
-                        //일반에러
-                        SdkLog.e("response:\n not api error: \(afError)")
-                        completion(nil, nil, afError)
-                        return
-                    }
+                if let afError = response.error, let retryError = self.getRequestRetryFailedError(error:afError) {
+                    SdkLog.e("response:\n api error: \(retryError)")
+                    completion(nil, nil, retryError)
+                }
+                else if let afError = response.error, self.getSdkError(error:afError) == nil {
+                    //일반에러
+                    SdkLog.e("response:\n not api error: \(afError)")
+                    completion(nil, nil, afError)                    
                 }
                 else if let data = response.data, let response = response.response {
                     if let sdkError = SdkError(response: response, data: data, type: apiType) {
@@ -133,13 +147,11 @@ extension Api {
                     }
                     
                     completion(response, data, nil)
-                    return
                 }
                 else {
                     //data or response 가 문제
                     SdkLog.e("response:\n error: response or data is nil.")
                     completion(nil, nil, SdkError(reason: .Unknown, message: "response or data is nil."))
-                    return
                 }
             }
     }
@@ -203,17 +215,14 @@ extension Api {
                 }
             }
             .responseData { (response) in
-                if let afError = response.error {
-                    if let retryError = self.getRequestRetryFailedError(error:afError) {
-                        SdkLog.e("response:\n api error: \(retryError)")
-                        completion(nil, nil, retryError)
-                    }
-                    else {
-                        //일반에러
-                        SdkLog.e("response:\n not api error: \(afError)")
-                        completion(nil, nil, afError)
-                        return
-                    }
+                if let afError = response.error, let retryError = self.getRequestRetryFailedError(error:afError) {
+                    SdkLog.e("response:\n api error: \(retryError)")
+                    completion(nil, nil, retryError)
+                }
+                else if let afError = response.error, self.getSdkError(error:afError) == nil {
+                    //일반에러
+                    SdkLog.e("response:\n not api error: \(afError)")
+                    completion(nil, nil, afError)
                 }
                 else if let data = response.data, let response = response.response {
                     completion(response, data, nil)

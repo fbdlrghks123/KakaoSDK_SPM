@@ -22,25 +22,7 @@ public class AuthRequestRetrier : RequestInterceptor {
     private var isRefreshing = false
     
     private var errorLock = NSLock()
-    
-    private func getSdkError(error: Error) -> SdkError? {
-        if let aferror = error as? AFError {
-            switch aferror {
-            case .responseValidationFailed(let reason):
-                switch reason {
-                case .customValidationFailed(let error):
-                    return error as? SdkError
-                default:
-                    SdkLog.d("not customValidationFailed. - dont care case")
-                }
-            default:
-                SdkLog.d("not responseValidationFailed. - dont care case")
-                
-            }
-        }
-        return nil
-    }
-    
+
     public init() {
     }
     
@@ -49,7 +31,7 @@ public class AuthRequestRetrier : RequestInterceptor {
         
         var logString = "request retrier:"        
 
-        if let sdkError = getSdkError(error: error) {
+        if let sdkError = API.getSdkError(error: error) {
             if !sdkError.isApiFailed {
                 SdkLog.e("\(logString)\n error:\(error)\n not api error -> pass through\n\n")
                 completion(.doNotRetryWithError(SdkError(message:"not api error -> pass through")))
@@ -69,25 +51,14 @@ public class AuthRequestRetrier : RequestInterceptor {
                         isRefreshing = true
                             
                         //SdkLog.d("<<<<<<<<<<<<<< start token refresh\n request: \(String(describing:request))\n\n")
-                        AuthApi.shared.refreshAccessToken { [weak self](token, error) in
-
-                            guard let strongSelf = self else {
-                                SdkLog.e("strong self casting error!")
-                                //abort all pending requests.
-                                self?.requestsToRetry.forEach {
-                                    $0(.doNotRetryWithError(SdkError(message:"string self casing error!")))
-                                }
-                                self?.requestsToRetry.removeAll()
-                                self?.isRefreshing = false
-                                return
-                            }
+                        AuthApi.shared.refreshAccessToken { [unowned self] (token, error) in
                             
                             if let error = error {
                                 //token refresh failure.
                                 SdkLog.e(" refreshToken error: \(error). retry aborted.\n request: \(request) \n\n")
                                 
                                 //pending requests all cancel
-                                strongSelf.requestsToRetry.forEach {
+                                self.requestsToRetry.forEach {
                                     $0(.doNotRetryWithError(error))
                                 }                              }
                             else {
@@ -95,13 +66,13 @@ public class AuthRequestRetrier : RequestInterceptor {
                                 //SdkLog.d(">>>>>>>>>>>>>> refreshToken success\n request: \(request) \n\n")
                                 
                                 //proceed all pending requests.
-                                strongSelf.requestsToRetry.forEach {
+                                self.requestsToRetry.forEach {
                                     $0(.retry)
                                 }
                             }
                             
-                            strongSelf.requestsToRetry.removeAll() //reset all stored completion
-                            strongSelf.isRefreshing = false
+                            self.requestsToRetry.removeAll() //reset all stored completion
+                            self.isRefreshing = false
                         }
                     }
                 }

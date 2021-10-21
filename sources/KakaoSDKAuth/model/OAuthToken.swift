@@ -212,7 +212,7 @@ public struct CertOAuthToken: Codable {
     }
 }
 
-// 카카오톡 인증 로그인을 통해 발급 받은 토큰 및 전자서명 접수번호 입니다.
+/// 카카오톡 인증 로그인을 통해 발급 받은 토큰 및 전자서명 접수번호 입니다.
 public struct CertTokenInfo: Codable {
     ///토큰 정보
     public let token: OAuthToken
