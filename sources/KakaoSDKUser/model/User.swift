@@ -133,6 +133,11 @@ public struct Account : Codable {
     /// - seealso: `Profile`
     public let profile: Profile?
     
+    /// 카카오계정 이름에 대한 사용자 동의 필요 여부
+    public let nameNeedsAgreement: Bool?
+    /// 카카오계정 이름
+    public let name: String?
+    
     /// email 제공에 대한 사용자 동의 필요 여부
     public let emailNeedsAgreement: Bool?
     /// 카카오계정에 등록된 이메일의 유효성

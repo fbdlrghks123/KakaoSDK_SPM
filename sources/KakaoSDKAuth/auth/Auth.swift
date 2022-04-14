@@ -13,9 +13,9 @@
 //  limitations under the License.
 
 import Foundation
+import UIKit
 import Alamofire
 import KakaoSDKCommon
-import UIKit
 
 public let AUTH = Auth.shared
 
@@ -38,8 +38,13 @@ public class Auth {
     
     func initSession() {
         let interceptor = Interceptor(adapter: AuthRequestAdapter(), retrier: AuthRequestRetrier())
-        API.addSession(type: .AuthApi, session: Session(configuration: URLSessionConfiguration.default, interceptor: interceptor))
-        API.addSession(type: .RxAuthApi, session: Session(configuration: URLSessionConfiguration.default, interceptor: AuthRequestAdapter()))
+        let authApiSessionConfiguration : URLSessionConfiguration = URLSessionConfiguration.default
+        authApiSessionConfiguration.tlsMinimumSupportedProtocol = .tlsProtocol12
+        API.addSession(type: .AuthApi, session: Session(configuration: authApiSessionConfiguration, interceptor: interceptor))
+        
+        let rxAuthApiSessionConfiguration : URLSessionConfiguration = URLSessionConfiguration.default
+        rxAuthApiSessionConfiguration.tlsMinimumSupportedProtocol = .tlsProtocol12
+        API.addSession(type: .RxAuthApi, session: Session(configuration: rxAuthApiSessionConfiguration, interceptor: AuthRequestAdapter()))
         
         SdkLog.d(">>>> \(API.sessions)")
     }

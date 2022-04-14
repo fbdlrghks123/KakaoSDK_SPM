@@ -167,8 +167,8 @@ public struct NaviOption : Codable {
                 vehicleType : VehicleType? = nil,
                 rpOption : RpOption? = nil,
                 routeInfo : Bool? = false,
-                startX : String? = "0",
-                startY : String? = "0",
+                startX : String? = nil,
+                startY : String? = nil,
                 startAngle : Int? = 0,
                 returnUri : URL? = nil)  {
         self.coordType = coordType

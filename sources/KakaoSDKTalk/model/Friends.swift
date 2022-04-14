@@ -69,12 +69,12 @@ public struct Friends<T:Codable> : Codable {
     public let totalCount: Int
     
     /// 조회된 친구 중 즐겨찾기에 등록된 친구 수
-    public let favoriteCount: Int
+    public let favoriteCount: Int?
     
     public let beforeUrl : URL?
     public let afterUrl : URL?
     
-    public init(elements:[T]?, totalCount:Int, favoriteCount:Int, beforeUrl:URL? = nil, afterUrl:URL? = nil) {
+    public init(elements:[T]?, totalCount:Int, favoriteCount:Int? = nil, beforeUrl:URL? = nil, afterUrl:URL? = nil) {
         self.elements = elements
         self.totalCount = totalCount
         self.favoriteCount = favoriteCount
@@ -123,6 +123,9 @@ public struct Friend : Codable {
     /// 사용자 아이디
     public let id: Int64?
     
+    /// :nodoc:
+    public let serviceUserId: Int64?
+    
     /// 메시지를 전송하기 위한 고유 아이디
     ///
     /// 사용자의 계정 상태에 따라 이 정보는 바뀔 수 있습니다. 앱내의 사용자 식별자로 저장 사용되는 것은 권장하지 않습니다.
@@ -137,20 +140,24 @@ public struct Friend : Codable {
     /// 즐겨찾기 추가 여부
     public let favorite: Bool?
     
+    ///  메시지 수신이 허용되었는지 여부. 앱가입 친구의 경우는 feed msg에 해당. 앱미가입친구는 invite msg에 해당
+    public let allowedMsg: Bool?
     
     // MARK: Internal
     
     enum CodingKeys : String, CodingKey {
-        case id, uuid, profileNickname, profileThumbnailImage, favorite
+        case id, serviceUserId, uuid, profileNickname, profileThumbnailImage, favorite, allowedMsg
     }
     
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try? values.decode(Int64.self, forKey: .id)
+        serviceUserId = try? values.decode(Int64.self, forKey: .serviceUserId)
         uuid = try values.decode(String.self, forKey: .uuid)
         profileNickname = try? values.decode(String.self, forKey: .profileNickname)
         profileThumbnailImage = URL(string:(try? values.decode(String.self, forKey: .profileThumbnailImage)) ?? "")
         favorite = try? values.decode(Bool.self, forKey: .favorite)
+        allowedMsg = try? values.decode(Bool.self, forKey: .allowedMsg)
     }
 }
